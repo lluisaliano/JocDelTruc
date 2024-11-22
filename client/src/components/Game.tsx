@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Authentication } from "../apis/auth";
-import { handleMessages } from "../apis/messages";
+import { handleMessages } from "../apis/handleMessages";
 
 import { PageProps, PlayerCards } from "../types/params";
 import { FirstMessage, NewGameMessage } from "../types/messages";
@@ -23,9 +23,11 @@ export function Game({ setAppPage }: PageProps) {
 
   // TODO SHAURIA DEMPRAR UN USEREDUCER O ALGO SIMILAR PER MANETJAR SA LOGICA DE SES CARTES i tot sestat
   const [currentPlayerCards, setCurrentPlayerCards] = useState<PlayerCards>();
+  // TODO TEAM SHOULD GO ON TOP
+  const [players, setPlayers] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log("INITIALIZATIN SOCKET CONNECTION");
+    console.log("Starting Socket Connection");
     const ws = new WebSocket(API_URL);
     // We store web socket in a referece
     wsRef.current = ws;
@@ -44,12 +46,15 @@ export function Game({ setAppPage }: PageProps) {
 
     ws.addEventListener("message", (event) => {
       // TODO IMPROVE THIS LOGIC mes que res perque no hi ha logica, se hauria de pasar es setter des reducer a sa funcio handleMessage...
-      const message = handleMessages(event);
-      setCurrentPlayerCards(message?.playerCards);
+      handleMessages(event, { setCurrentPlayerCards, setPlayers });
     });
 
     ws.addEventListener("error", () => {
       ws.close(1000, "Error WebSocket");
+    });
+
+    ws.addEventListener("close", (event) => {
+      console.log(event.reason);
     });
 
     // Clean function
@@ -58,6 +63,8 @@ export function Game({ setAppPage }: PageProps) {
       ws.close(1000, "Closing WebSocket, UseEffect CleanUp Function");
     };
   }, []);
+
+  console.log(players);
 
   const handleNewGame = () => {
     // TODO IMPLEMENT ELSE IN CASE OF ERROR
@@ -91,7 +98,7 @@ export function Game({ setAppPage }: PageProps) {
           }
           cardImages={cardImages}
           position="bottom"
-          name="Lluis"
+          name={players[0]}
         ></Player>
         <Player
           playerCards={[
@@ -101,6 +108,7 @@ export function Game({ setAppPage }: PageProps) {
           ]}
           cardImages={cardImages}
           position="top"
+          name={players[1]}
         ></Player>
         <Player
           playerCards={[
@@ -110,6 +118,7 @@ export function Game({ setAppPage }: PageProps) {
           ]}
           cardImages={cardImages}
           position="left"
+          name={players[2]}
         ></Player>
         <Player
           playerCards={[
@@ -119,6 +128,7 @@ export function Game({ setAppPage }: PageProps) {
           ]}
           cardImages={cardImages}
           position="right"
+          name={players[3]}
         ></Player>
       </Board>
       <button onClick={handleNewGame}>Nova Partida</button>

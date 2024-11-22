@@ -14,6 +14,7 @@ const WS_PORT = 8080;
 // Registered Users
 const users = {
   lluis: "lolito",
+  pere: "lolito",
 };
 
 // JWT Secret Key
@@ -59,7 +60,15 @@ app.listen(PORT, () => {
 // Create Websocket server which will send and receive messages from the client to handle game logic
 const wss = new WebSocketServer({ port: WS_PORT });
 
-const players = [];
+/**
+ * This array will store players data
+ * A player have:
+ * - userName
+ * - socket
+ * - position
+ * - cards
+ */
+let players = [];
 
 wss.on("connection", (ws) => {
   // Show client Info
@@ -68,6 +77,10 @@ wss.on("connection", (ws) => {
   ws.on("error", console.error);
 
   ws.on("close", (code, reason) => {
+    // Remove player from players array
+    players = players.filter((player) => {
+      player.socket !== ws;
+    });
     console.log(reason.toString("utf8"));
   });
 
@@ -81,30 +94,75 @@ wss.on("connection", (ws) => {
       decodedToken = jwt.verify(message.token, secretKey);
       //ws.send("TOKEN_VALID"); THERE IS NO NEED TO NOTIFY CLIENT IF HIS TOKEN IS VALID
     } catch (error) {
+      //TODO THIS SHOULD BE CORRECTED
       ws.send("TOKEN_NOT_VALID");
+      ws.close(1000, "TOKEN_NOT_VALID");
       return;
+    }
+
+    // We save the user first letter with upper case
+    const userName =
+      decodedToken.userName.charAt(0).toUpperCase() +
+      decodedToken.userName.slice(1);
+
+    // ASSERTS
+    // If player is already connected quit his old session and start a new one
+    if (players.find((player) => player.userName === userName)) {
+      console.log("Player Already Exists");
+      players
+        .find((player) => player.userName === userName)
+        .socket.close(1000, "New Session of your user has been started");
+      players = players.filter((player) => {
+        player.userName !== userName;
+      });
+    }
+
+    // TODO THIS SHOULD BE CHANGED TO SPECIFY NUMBER OF PLAYERS
+    // If we have more than 4 players quit
+    if (players.length >= 4) {
+      ws.close(1000, "There cannot play more than 4 users");
     }
 
     // Then we check message type
     switch (message.type) {
-      // If message is a firstConnection, we push player to players array
+      // If message is a firstConnection
       case "firstConnection":
-        players.push({ username: decodedToken.userName, socket: ws });
+        // We push player to players array
+        players.push({ username: userName, socket: ws });
+
+        // We send new player's name to players
+        const message = {
+          type: "newPlayer",
+          userName: userName,
+          self: false,
+        };
+        for (const player of players) {
+          // If player is sending his own self, we send property self to true
+          //TODO We should inclue a team property to send userName of the team
+          if (userName === player.userName) {
+            player.socket.send(JSON.stringify({ ...message, self: true }));
+          }
+          player.socket.send(JSON.stringify(message));
+        }
+
+        console.log(players);
+
         break;
       case "newGame":
         // Shuffle Cards
         const shuffledDeck = shuffleDeck(cards, players.length);
-        console.log(shuffledDeck);
         // Assign cards to player
         for (const player of players) {
           const playerCards = [];
           for (let i = 0; i <= 2; i++) {
             playerCards.push(shuffledDeck.pop());
           }
-          //TODO Add score... etc, this should be sended later, once score has been calculated
+          // Store cards in player
+          player.cards = playerCards;
+          //TODO Add score,gamePhase... etc, this should be sent later, once score has been calculated
           const message = {
             type: "newGameResponse",
-            playerCards: playerCards,
+            playerCards: playerCards, // TODO This could be changed by play.cards
           };
           player.socket.send(JSON.stringify(message));
         }

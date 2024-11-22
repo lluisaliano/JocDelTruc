@@ -1,5 +1,14 @@
 import { PlayerCards } from "./params";
 
+// HANDLE MESSAGE PROP TYPE
+export interface HandleMssagesSetterProps {
+  setCurrentPlayerCards: React.Dispatch<
+    React.SetStateAction<PlayerCards | undefined>
+  >;
+  setPlayers: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+// RECIEVED MESSAGES
 interface Message {
   type: "firstConnection" | "newGame" | "gameMovement" | "gameState";
   token: string;
@@ -17,7 +26,16 @@ export interface NewGameMessage extends Message {
   token: string;
 }
 
+// RESPONSE MESSAGES
 export interface ResponseMessage {
-  type: "newGameResponse";
+  type: "newGameResponse" | "newPlayer";
+}
+
+export interface NewGameResponse extends ResponseMessage {
   playerCards: PlayerCards;
+}
+
+export interface NewPlayerResponse extends ResponseMessage {
+  userName: string;
+  self: boolean;
 }
