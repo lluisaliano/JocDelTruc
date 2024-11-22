@@ -137,7 +137,6 @@ wss.on("connection", (ws) => {
           self: true,
         };
         for (const player of players) {
-          console.log(player.userName);
           // If player is not sending his own self, we send property self to false
           //TODO We should inclue a team property to send userName of the team
           // TODO define Player.fing function as getPlayer method...
@@ -147,8 +146,9 @@ wss.on("connection", (ws) => {
             })
           ) {
             player.socket.send(JSON.stringify({ ...message, self: false }));
+          } else {
+            player.socket.send(JSON.stringify(message));
           }
-          player.socket.send(JSON.stringify(message));
         }
 
         break;
