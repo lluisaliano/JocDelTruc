@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  position: relative;
+  width: 100dvw;
+  height: 94dvh;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.player {
+  position: absolute;
+  margin: 20px;
+  width: 20%;
+  text-align: center;
+}
+
+.top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}

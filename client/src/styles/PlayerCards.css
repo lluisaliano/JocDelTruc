@@ -1,0 +1,15 @@
+.horizontalCards {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verticalCards {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
