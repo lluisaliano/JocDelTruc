@@ -64,8 +64,6 @@ export function Game({ setAppPage }: PageProps) {
     };
   }, []);
 
-  console.log(players);
-
   const handleNewGame = () => {
     // TODO IMPLEMENT ELSE IN CASE OF ERROR
     // TODO sending this message should depend on how many users are connected
