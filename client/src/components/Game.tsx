@@ -15,7 +15,7 @@ const cardImages = import.meta.glob<{ default: string }>(
 );
 
 //TODO Export this on .env file
-const API_URL = "http://localhost:8080";
+const API_URL = "http://192.168.1.62:8080";
 
 export function Game({ setAppPage }: PageProps) {
   // We will store the websocket in a ref, so we can send messages from all event handlers.

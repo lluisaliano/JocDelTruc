@@ -53,11 +53,11 @@ export type PlayerCards = [
   { id: cardId; value?: number }
 ];
 
-type Position = "top" | "bottom" | "left" | "right";
+type PlayerPosition = "top" | "bottom" | "left" | "right";
 
 export interface PlayerProps {
   name?: string;
-  position: Position;
+  position: PlayerPosition;
   cardImages: cardImages;
   playerCards: PlayerCards;
 }
@@ -67,7 +67,7 @@ export interface PlayerCardsProps {
   cardImages: cardImages;
   numberOfCards: 0 | 1 | 2 | 3;
   playerCards: PlayerCards;
-  position: Position;
+  position: PlayerPosition;
 }
 
 export interface CardProps {

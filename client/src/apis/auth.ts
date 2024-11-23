@@ -1,7 +1,8 @@
 import { AuthenticationData } from "../types/api";
 
+// TODO THIS SEEMS UNREACHABLE FROM OUTSIDE LOCALHOST
 // TODO Define API URL
-const API_URL = "http://localhost:3000/login";
+const API_URL = "http://192.168.1.62:3000/login";
 
 const TOKEN_KEY = "jwt";
 

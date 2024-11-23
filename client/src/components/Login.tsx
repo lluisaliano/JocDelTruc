@@ -16,20 +16,22 @@ export function Login({ setAppPage }: PageProps) {
     // Prevent Default Behavour
     e.preventDefault();
     // Generate JWT and notify with a toast
-    await toast.promise(Authentication.getToken(formData), {
-      pending: "Iniciant Sessió",
-      // data property gets message from rejected o settled (Read React-toastify docs)
-      success: {
-        render({ data }) {
-          return `${data}`;
+    await toast
+      .promise(Authentication.getToken(formData), {
+        pending: "Iniciant Sessió",
+        // data property gets message from rejected o settled (Read React-toastify docs)
+        success: {
+          render({ data }) {
+            return `${data}`;
+          },
         },
-      },
-      error: {
-        render({ data }) {
-          return `${data}`;
+        error: {
+          render({ data }) {
+            return `${data}`;
+          },
         },
-      },
-    });
+      })
+      .catch((e) => console.log(e)); // This will jump if server is down or unreachable
 
     setAppPage("game");
   };
