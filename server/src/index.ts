@@ -6,6 +6,7 @@ import { WebSocketServer } from "ws";
 import { PlayerCards, Users } from "./types/game.ts";
 import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
 import { TrucMatch } from "./game/TrucMatch";
+import { match } from "assert";
 
 const app = express();
 
@@ -67,7 +68,7 @@ const wss = new WebSocketServer({ port: WS_PORT });
  * - userName
  * - socket
  */
-let users: Users;
+let users: Users = [];
 
 wss.on("connection", (ws) => {
   // Show any possible error
@@ -114,6 +115,10 @@ wss.on("connection", (ws) => {
       ws.close(1000, "There cannot play more than 4 users");
     }
 
+    // TODO This switch should probably be refactored.
+    // TODO This declaration is here so we can acces it in all messages types
+    let trucMatch: TrucMatch;
+
     // Then we check message type
     switch (message.type) {
       // If message is a firstConnection
@@ -155,28 +160,28 @@ wss.on("connection", (ws) => {
 
         break;
       case "startGame":
-        // If there are not four users, game cannot be started
+        // If there are not four users, game should not start...
+        // TODO THIS SHOULD BE IMPROVED...
         if (users.length !== 4) {
-          userName.socked.send("THERE ARE NOT 4 USERS");
+          console.log("THERE ARE NOT 4 USERS");
         }
         // Create new match
-        const trucMatch = new TrucMatch(users);
+        trucMatch = new TrucMatch(users);
 
-        // Assign cards to player
+        const matchStatus = trucMatch.getStatus();
+
         for (const user of users) {
-          const playerCards: PlayerCards = [];
-          for (let i = 0; i <= 2; i++) {
-            playerCards.push(shuffledDeck.pop()!);
-          }
-          // Store cards in player
-          user.cards = playerCards;
-          //TODO Add score,gamePhase... etc, this should be sent later, once score has been calculated
+          const selfPlayerState = matchStatus.players.find(
+            (player) => player.userName === user.userName
+          );
           const responseMessage = {
             type: "startGameResponse",
-            playerCards: playerCards, // TODO This could be changed by play.cards
+            matchStatus: matchStatus,
+            selfPlayerState: selfPlayerState,
           };
           user.socket.send(JSON.stringify(responseMessage));
         }
+      //TODO Add score,gamePhase... etc, this should be sent later, once score has been calculated
       // start score counter
       // send shuffled cards to player with response message type newGameResponse and send initial score
     }

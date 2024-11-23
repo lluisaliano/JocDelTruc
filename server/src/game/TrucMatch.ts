@@ -52,27 +52,27 @@ export class TrucMatch {
 
   constructor(users: Users) {
     // This currently supports 4 users matches
-    if (users.length !== 4) {
+    //TODO MAYBE LESS THAN 4 USERS CAN BE USED FOR TESTING PURPOSES
+    if (users.length > 4) {
       throw new Error("THERE SHOULD BE 4 USERS");
-    }
-
-    // Store users to players array
-    for (let i = 0; i < users.length; i++) {
-      this.players[i].userName = users[i].userName;
     }
 
     // Shuffle cards
     const shuffledDeck = shuffleDeck(cards);
 
-    // Assign cards to each player
-    for (const player of this.players) {
+    // Create a player with the users and assign them the shuffled cards
+    for (let i = 0; i < users.length; i++) {
       let playerCards: PlayerCards = [];
       // Get 3 cards from shuffledDeck
       for (let i = 0; i <= 2; i++) {
         playerCards.push(shuffledDeck.pop()!);
       }
-      // Save cards on player
-      player.cards = playerCards;
+      const player: Player = {
+        userName: users[i].userName,
+        cards: playerCards,
+        thrownCards: [],
+      };
+      this.players[i] = player;
     }
 
     //Select teams
@@ -91,7 +91,16 @@ export class TrucMatch {
   //TODO This has not to send player not throwed cards and other private data!
   //TODO MAYBE EVERY METHOD SHOULD RETURN WHAT SHOULD BE UPDATED BY THE CLIENTS
   getStatus() {
-    return;
+    const status = {
+      team1: this.team1,
+      team2: this.team2,
+      score: this.score,
+      players: this.players,
+      currentTurn: this.currentTurn,
+      trucStatus: this.trucStatus,
+      envitStatus: this.envitStatus,
+    };
+    return status;
   }
 
   // Current turn player asks for 'truc', 'envit' or 'abandonar'

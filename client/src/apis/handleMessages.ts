@@ -1,6 +1,6 @@
 import {
   HandleMssagesSetterProps,
-  NewGameResponse,
+  StartGameResponse,
   NewPlayerResponse,
   ResponseMessage,
 } from "../types/messages";
@@ -15,7 +15,9 @@ export function handleMessages(
   console.log(message);
   switch (message.type) {
     case "startGameResponse":
-      setCurrentPlayerCards((message as NewGameResponse).playerCards);
+      setCurrentPlayerCards(
+        (message as StartGameResponse).selfPlayerState.cards
+      );
       return;
     case "newPlayerResponse": {
       // Wrap in {} because we are declaring a variable

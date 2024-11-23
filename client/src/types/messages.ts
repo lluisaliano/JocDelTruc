@@ -31,11 +31,36 @@ export interface ResponseMessage {
   type: "startGameResponse" | "newPlayerResponse";
 }
 
-export interface NewGameResponse extends ResponseMessage {
-  playerCards: PlayerCards;
+//TODO TEMPORARY TYPE USING MATCHSTATUS
+export interface StartGameResponse extends ResponseMessage {
+  matchStatus: MatchStatus;
+  selfPlayerState: Player;
 }
 
 export interface NewPlayerResponse extends ResponseMessage {
   userName: string;
   self: boolean;
+}
+
+// TODO Temporary Types some of these
+type PlayerPosition = "top" | "bottom" | "left" | "right";
+export interface Score {
+  team1: number;
+  team2: number;
+}
+export interface Player {
+  userName: string;
+  position?: PlayerPosition;
+  cards: PlayerCards;
+  thrownCards: PlayerCards;
+}
+export type Players = Player[];
+export interface MatchStatus {
+  team1: [Player, Player];
+  team2: [Player, Player];
+  score: Score;
+  players: Players;
+  currentTurn: Player;
+  trucStatus: "none" | "truc" | "retruc" | "val 9" | "cama";
+  envitStatus: "none" | "envit" | "renvit" | "val 6" | "falta envit";
 }
