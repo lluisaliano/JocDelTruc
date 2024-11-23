@@ -3,6 +3,6 @@ export interface AuthenticationData {
   password: string;
 }
 
-export interface Users {
+export interface RegisteredUsers {
   [key: string]: string;
 }

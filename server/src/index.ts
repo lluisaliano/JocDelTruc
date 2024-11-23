@@ -3,10 +3,9 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 
-import { cards } from "./cards.js";
-import { shuffleDeck } from "./utils/shuffleDeck.js";
-import { PlayerCards, Players } from "./types/game.js";
-import { AuthenticationData, Users } from "./types/api.js";
+import { PlayerCards, Users } from "./types/game.ts";
+import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
+import { TrucMatch } from "./game/TrucMatch";
 
 const app = express();
 
@@ -14,7 +13,7 @@ const PORT = 3000;
 const WS_PORT = 8080;
 
 // Registered Users
-const users: Users = {
+const registeredUsers: RegisteredUsers = {
   lluis: "lolito",
   pere: "lolito",
 };
@@ -34,12 +33,12 @@ app.post("/login", (req, res) => {
   // Get login form data
   const { userName, password } = req.body as AuthenticationData;
 
-  if (!users[userName]) {
+  if (!registeredUsers[userName]) {
     res.status(401).json({ responseMessage: "Usuari incorrecte" });
     return;
   }
 
-  if (users[userName] === password) {
+  if (registeredUsers[userName] === password) {
     // If user and password are correct, we create the token
     const payload = {
       userName: userName,
@@ -63,14 +62,12 @@ app.listen(PORT, () => {
 const wss = new WebSocketServer({ port: WS_PORT });
 
 /**
- * This array will store players data
+ * This array will store users data
  * A player have:
  * - userName
  * - socket
- * - position
- * - cards
  */
-let players: Players = [];
+let users: Users;
 
 wss.on("connection", (ws) => {
   // Show any possible error
@@ -80,9 +77,9 @@ wss.on("connection", (ws) => {
   console.log("Client connected");
 
   ws.on("close", (code, reason) => {
-    // Remove player from players array
-    players = players.filter((player) => {
-      return player.socket !== ws;
+    // Remove user from users array
+    users = users.filter((user) => {
+      return user.socket !== ws;
     });
     console.log(reason.toString("utf8"));
   });
@@ -111,9 +108,9 @@ wss.on("connection", (ws) => {
     // We save the user first letter with upper case
     const userName = decodedToken.userName;
 
-    // TODO THIS SHOULD BE CHANGED TO SPECIFY NUMBER OF PLAYERS
-    // If we have more than 4 players quit
-    if (players.length >= 4) {
+    // TODO THIS SHOULD BE CHANGED TO SPECIFY NUMBER OF USERS
+    // If we have more than 4 users quit
+    if (users.length >= 4) {
       ws.close(1000, "There cannot play more than 4 users");
     }
 
@@ -121,59 +118,64 @@ wss.on("connection", (ws) => {
     switch (message.type) {
       // If message is a firstConnection
       case "firstConnection":
-        // If player is already connected quit his old session and start a new one
-        const existingPlayer = players.find(
-          (player) => player.userName === userName
-        );
-        if (existingPlayer) {
+        // If user is already connected quit his old session and start a new one
+        const existinUser = users.find((user) => user.userName === userName);
+        if (existinUser) {
           // Close Connection
-          existingPlayer.socket.close(
+          existinUser.socket.close(
             1000,
             "New Session of your user has been started"
           );
-          // Remove from players array
-          players = players.filter((player) => {
-            return player.userName !== userName;
+          // Remove from users array
+          users = users.filter((user) => {
+            return user.userName !== userName;
           });
         }
-        // We push player to players array
-        players.push({ userName: userName, socket: ws });
+        // We push user to users array
+        users.push({ userName: userName, socket: ws });
 
-        // We send new player's name to players
-        const message = {
-          type: "newPlayer",
+        // We send new user's name to users
+        const responseMessage = {
+          type: "newPlayerResponse",
           userName: userName,
           self: false,
         };
-        for (const player of players) {
+        for (const user of users) {
           // If player is sending his own self, we set property self to true
           //TODO We should inclue a team property to send userName of the team
           // TODO define Player.fing function as getPlayer method...
-          if (player.userName === userName) {
-            player.socket.send(JSON.stringify({ ...message, self: true }));
+          if (user.userName === userName) {
+            user.socket.send(
+              JSON.stringify({ ...responseMessage, self: true })
+            );
           } else {
-            player.socket.send(JSON.stringify(message));
+            user.socket.send(JSON.stringify(responseMessage));
           }
         }
 
         break;
-      case "newGame":
-        // Shuffle Cards
-        const shuffledDeck = shuffleDeck(cards);
+      case "startGame":
+        // If there are not four users, game cannot be started
+        if (users.length !== 4) {
+          userName.socked.send("THERE ARE NOT 4 USERS");
+        }
+        // Create new match
+        const trucMatch = new TrucMatch(users);
+
         // Assign cards to player
-        for (const player of players) {
+        for (const user of users) {
           const playerCards: PlayerCards = [];
           for (let i = 0; i <= 2; i++) {
             playerCards.push(shuffledDeck.pop()!);
           }
           // Store cards in player
-          player.cards = playerCards;
+          user.cards = playerCards;
           //TODO Add score,gamePhase... etc, this should be sent later, once score has been calculated
-          const message = {
-            type: "newGameResponse",
+          const responseMessage = {
+            type: "startGameResponse",
             playerCards: playerCards, // TODO This could be changed by play.cards
           };
-          player.socket.send(JSON.stringify(message));
+          user.socket.send(JSON.stringify(responseMessage));
         }
       // start score counter
       // send shuffled cards to player with response message type newGameResponse and send initial score

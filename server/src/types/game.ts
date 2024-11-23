@@ -34,20 +34,39 @@ type cardId =
   | "amo"
   | "back_card";
 
-type Card = { id: cardId; value: number };
+export type Card = { id: cardId; value: number };
 
 export type Cards = Array<Card>;
 
 type PlayerPosition = "top" | "bottom" | "left" | "right";
 
-export type PlayerCards = Card[];
-
-//TODO THE OPTIONAL PROPERTIES OF THIS TYPE MAY BE MANDATORY
-interface Player {
+export interface User {
   userName: string;
   socket: WebSocket;
+}
+
+export type Users = User[];
+
+// A player can have 0, 1, 2, 3 cards
+export type PlayerCards = Card[];
+
+//TODO Change optional properties, they should be mandatory
+/**
+ * thrownCards, contains the order of cards that have been thrown. position 0 contains card thrown on round 1
+ * position 1 contains card thrown on round 2...
+ */
+export interface Player {
+  userName: string;
   position?: PlayerPosition;
-  cards?: PlayerCards;
+  cards: PlayerCards;
+  thrownCards: PlayerCards;
 }
 
 export type Players = Player[];
+
+export interface Score {
+  team1: number;
+  team2: number;
+}
+
+export type CallType = "truc" | "envit" | "abandonar";

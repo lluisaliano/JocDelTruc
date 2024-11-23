@@ -69,7 +69,7 @@ export function Game({ setAppPage }: PageProps) {
     // TODO sending this message should depend on how many users are connected
     if (wsRef.current) {
       const newGameMessage: NewGameMessage = {
-        type: "newGame",
+        type: "startGame",
         token: Authentication.recoverToken()!,
       };
       wsRef.current.send(JSON.stringify(newGameMessage));

@@ -10,7 +10,7 @@ export interface HandleMssagesSetterProps {
 
 // RECIEVED MESSAGES
 interface Message {
-  type: "firstConnection" | "newGame" | "gameMovement" | "gameState";
+  type: "firstConnection" | "startGame" | "gameMovement" | "gameState";
   token: string;
 }
 
@@ -22,13 +22,13 @@ export interface FirstMessage extends Message {
 
 // TODO sending this message should depend on how many users are connected...
 export interface NewGameMessage extends Message {
-  type: "newGame";
+  type: "startGame";
   token: string;
 }
 
 // RESPONSE MESSAGES
 export interface ResponseMessage {
-  type: "newGameResponse" | "newPlayer";
+  type: "startGameResponse" | "newPlayerResponse";
 }
 
 export interface NewGameResponse extends ResponseMessage {

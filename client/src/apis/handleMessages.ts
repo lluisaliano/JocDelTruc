@@ -14,10 +14,10 @@ export function handleMessages(
   //TODO Receive Cards and Score
   console.log(message);
   switch (message.type) {
-    case "newGameResponse":
+    case "startGameResponse":
       setCurrentPlayerCards((message as NewGameResponse).playerCards);
       return;
-    case "newPlayer": {
+    case "newPlayerResponse": {
       // Wrap in {} because we are declaring a variable
       //TODO TEAM SHOULD GO ON TOP ON THE BOARD, SERVER SHOULD SEND TEAM USERNAME TO DO THAT
       const castedMessage = message as NewPlayerResponse;
