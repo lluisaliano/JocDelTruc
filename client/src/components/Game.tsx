@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Authentication } from "../apis/auth";
 import { handleMessages } from "../apis/handleMessages";
 
-import { PageProps, PlayerCards } from "../types/params";
-import { FirstMessage, NewGameMessage } from "../types/messages";
+import { PageProps, CardsOfPlayer, ThrownPlayerCards } from "../types/params";
+import { FirstMessage, StartGameMessage } from "../types/messages";
 import { Board } from "./gameComponents/Board";
 import { Player } from "./gameComponents/Player";
 
 import { toast } from "react-toastify";
+import { WebSocketContext } from "../contexts/WebSocketContext";
 
 // Lazy Load Card Images and send it to Players component
 const cardImages = import.meta.glob<{ default: string }>(
@@ -18,11 +19,23 @@ const cardImages = import.meta.glob<{ default: string }>(
 const API_URL = "http://192.168.1.62:8080";
 
 export function Game({ setAppPage }: PageProps) {
-  // We will store the websocket in a ref, so we can send messages from all event handlers.
+  // We will store the websocket in a ref, so we can send messages from all event handlers. This Ref will be stored in a context
   const wsRef = useRef<WebSocket>();
 
   // TODO SHAURIA DEMPRAR UN USEREDUCER O ALGO SIMILAR PER MANETJAR SA LOGICA DE SES CARTES i tot sestat
-  const [currentPlayerCards, setCurrentPlayerCards] = useState<PlayerCards>();
+  const [currentPlayerCards, setCurrentPlayerCards] = useState<CardsOfPlayer>();
+
+  //TODO PENDING OTHERPLAYER CARDS STATE
+  //const [otherPlayerCards, setOtherPlayersCards] = useState<OtherPlayerCards>()
+
+  const [thrownPlayerCards, setThrownPlayerCards] = useState<ThrownPlayerCards>(
+    {
+      top: [],
+      bottom: [],
+      left: [],
+      right: [],
+    }
+  );
 
   // TODO TEAM SHOULD GO ON TOP
   const [players, setPlayers] = useState<string[]>([]);
@@ -47,7 +60,11 @@ export function Game({ setAppPage }: PageProps) {
 
     ws.addEventListener("message", (event) => {
       // TODO IMPROVE THIS LOGIC mes que res perque no hi ha logica, se hauria de pasar es setter des reducer a sa funcio handleMessage...
-      handleMessages(event, { setCurrentPlayerCards, setPlayers });
+      handleMessages(event, {
+        setCurrentPlayerCards,
+        setPlayers,
+        setThrownPlayerCards,
+      });
     });
 
     ws.addEventListener("error", () => {
@@ -66,10 +83,17 @@ export function Game({ setAppPage }: PageProps) {
   }, []);
 
   const handleNewGame = () => {
+    // Reset Thrown Cards:
+    setThrownPlayerCards({
+      top: [],
+      bottom: [],
+      left: [],
+      right: [],
+    });
     // TODO IMPLEMENT ELSE IN CASE OF ERROR
     // TODO sending this message should depend on how many users are connected
     if (wsRef.current) {
-      const newGameMessage: NewGameMessage = {
+      const newGameMessage: StartGameMessage = {
         type: "startGame",
         token: Authentication.recoverToken()!,
       };
@@ -85,50 +109,59 @@ export function Game({ setAppPage }: PageProps) {
     setAppPage("entryPage");
     toast.success("Sessió Tancada");
   };
-  //TODO CLIENT ONLY WILL KNOW PLAYER CARDS ONCE THROWED, THIS IS FOR TESTING
   return (
     <>
       <Board color={"#936846"}>
-        <Player
-          playerCards={
-            currentPlayerCards
-              ? currentPlayerCards
-              : [{ id: "back_card" }, { id: "back_card" }, { id: "back_card" }]
-          }
-          cardImages={cardImages}
-          position="bottom"
-          name={players[0]}
-        ></Player>
-        <Player
-          playerCards={[
-            { id: "back_card" },
-            { id: "back_card" },
-            { id: "back_card" },
-          ]}
-          cardImages={cardImages}
-          position="top"
-          name={players[1]}
-        ></Player>
-        <Player
-          playerCards={[
-            { id: "back_card" },
-            { id: "back_card" },
-            { id: "back_card" },
-          ]}
-          cardImages={cardImages}
-          position="left"
-          name={players[2]}
-        ></Player>
-        <Player
-          playerCards={[
-            { id: "back_card" },
-            { id: "back_card" },
-            { id: "back_card" },
-          ]}
-          cardImages={cardImages}
-          position="right"
-          name={players[3]}
-        ></Player>
+        <WebSocketContext.Provider value={wsRef ? wsRef : null}>
+          <Player
+            playerCards={
+              currentPlayerCards
+                ? currentPlayerCards
+                : [
+                    { id: "back_card" },
+                    { id: "back_card" },
+                    { id: "back_card" },
+                  ]
+            }
+            thrownCards={thrownPlayerCards.bottom}
+            cardImages={cardImages}
+            position="bottom"
+            name={players[0]}
+          ></Player>
+          <Player
+            playerCards={[
+              { id: "back_card" },
+              { id: "back_card" },
+              { id: "back_card" },
+            ]}
+            thrownCards={thrownPlayerCards.top}
+            cardImages={cardImages}
+            position="top"
+            name={players[1]}
+          ></Player>
+          <Player
+            playerCards={[
+              { id: "back_card" },
+              { id: "back_card" },
+              { id: "back_card" },
+            ]}
+            thrownCards={thrownPlayerCards.left}
+            cardImages={cardImages}
+            position="left"
+            name={players[2]}
+          ></Player>
+          <Player
+            playerCards={[
+              { id: "back_card" },
+              { id: "back_card" },
+              { id: "back_card" },
+            ]}
+            thrownCards={thrownPlayerCards.right}
+            cardImages={cardImages}
+            position="right"
+            name={players[3]}
+          ></Player>
+        </WebSocketContext.Provider>
       </Board>
       <button onClick={handleNewGame}>Nova Partida</button>
       <button onClick={handleLogOut}>Tancar Sessió</button>

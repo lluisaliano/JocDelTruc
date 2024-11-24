@@ -1,16 +1,8 @@
-import { cardId, CardsOfPlayer, ThrownPlayerCards } from "./params";
-
-// HANDLE MESSAGE PROP TYPE
-export interface HandleMssagesSetterProps {
-  setCurrentPlayerCards: React.Dispatch<
-    React.SetStateAction<CardsOfPlayer | undefined>
-  >;
-  setPlayers: React.Dispatch<React.SetStateAction<string[]>>;
-  setThrownPlayerCards: React.Dispatch<React.SetStateAction<ThrownPlayerCards>>;
-}
+import { cardId, CardsOfPlayer, GameState } from "./game";
 
 // RECIEVED MESSAGES
-// GameState demana informacio de sestat des joc, pot ser no es necessari
+//TODO Change data propery to its possible types...
+//TODO Create type for each playPlay and PlayCall and gameState
 export interface Message {
   type:
     | "firstConnection"
@@ -19,7 +11,7 @@ export interface Message {
     | "playerCall"
     | "gameState";
   token: string;
-  data?: unknown;
+  data?: any;
 }
 
 // This may be unnecessary
@@ -38,21 +30,22 @@ export interface PlayerPlayMessage extends Message {
   data: { thrownCard: cardId };
 }
 
+//TODO SELFPLAYERSTATE SHOULD BE REMOVED...
 // RESPONSE MESSAGES
-//TODO selfPlayerState should be removed
 export interface ResponseMessage {
   type:
     | "startGameResponse"
     | "newPlayerResponse"
     | "errorResponse"
     | "stateUpdate";
+  data: any;
   selfPlayerState?: Player;
 }
 
-//TODO TEMPORARY TYPE USING MATCHSTATUS
+//TODO TEMPORARY TYPE USING gameState
 export interface StartGameResponse extends ResponseMessage {
   gameState: GameState;
-  selfPlayerState: Player;
+  selfPlayerState?: Player;
 }
 
 export interface NewPlayerResponse extends ResponseMessage {
@@ -81,17 +74,3 @@ export interface Player {
   thrownCards: CardsOfPlayer;
 }
 export type Players = Player[];
-
-export interface GameState {
-  team1: [Player, Player];
-  team2: [Player, Player];
-  score: Score;
-  players: Players;
-  currentTurn: Player;
-  trucState: TrucState;
-  envitState: EnvitState;
-}
-
-export type TrucState = "truc" | "none" | "retruc" | "val 9" | "cama";
-
-export type EnvitState = "none" | "envit" | "renvit" | "val 6" | "falta envit";

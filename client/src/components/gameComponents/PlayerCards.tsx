@@ -5,9 +5,10 @@ import "../../styles/PlayerCards.css";
 export function PlayerCards({
   view,
   numberOfCards,
-  playerCards,
+  cardsList,
   cardImages,
   position,
+  type,
 }: PlayerCardsProps) {
   const cards = Array.from({ length: numberOfCards }).map(
     (_, index: number) => {
@@ -15,17 +16,17 @@ export function PlayerCards({
         <Card
           key={index}
           cardImages={cardImages}
-          id={view === "visible" ? playerCards[index].id : "back_card"}
+          id={view === "visible" ? cardsList[index].id : "back_card"}
+          type={type}
         ></Card>
       );
     }
   );
 
-  const cardOrientation =
-    position === "top" || position === "bottom"
-      ? "horizontalCards"
-      : "verticalCards";
-
   // MODIFIFCAR LINIA, LLEVAR CARDS, ESTA POSAT PERQUE NO DONI ERROR
-  return <div className={cardOrientation}>{cards}</div>;
+  return (
+    <div className={position + "Cards" + ` ${type} ` + "playerCardsDiv"}>
+      {cards}
+    </div>
+  );
 }

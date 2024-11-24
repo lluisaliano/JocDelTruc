@@ -13,7 +13,7 @@ export interface BoardProps {
 type cardImages = Record<string, () => Promise<{ default: string }>>;
 
 // Card IDs Type
-type cardId =
+export type cardId =
   | "un_espasses"
   | "un_bastos"
   | "un_oros"
@@ -46,12 +46,23 @@ type cardId =
   | "amo"
   | "back_card";
 
-// Player current round cards type
-export type PlayerCards = [
-  { id: cardId; value?: number },
-  { id: cardId; value?: number },
-  { id: cardId; value?: number }
-];
+// Player current round cards type. There can be 0, 1, 2 or 3 cards
+export type Card = { id: cardId; value?: number };
+
+export type CardsOfPlayer = Card[];
+
+export interface OtherPlayerCards {
+  top: CardsOfPlayer;
+  left: CardsOfPlayer;
+  right: CardsOfPlayer;
+}
+
+export interface ThrownPlayerCards {
+  top: CardsOfPlayer;
+  bottom: CardsOfPlayer;
+  left: CardsOfPlayer;
+  right: CardsOfPlayer;
+}
 
 type PlayerPosition = "top" | "bottom" | "left" | "right";
 
@@ -59,18 +70,29 @@ export interface PlayerProps {
   name?: string;
   position: PlayerPosition;
   cardImages: cardImages;
-  playerCards: PlayerCards;
+  playerCards: CardsOfPlayer;
+  thrownCards: CardsOfPlayer;
 }
 
 export interface PlayerCardsProps {
   view: "hidden" | "visible";
   cardImages: cardImages;
-  numberOfCards: 0 | 1 | 2 | 3;
-  playerCards: PlayerCards;
+  numberOfCards: number;
+  cardsList: CardsOfPlayer;
+  position: PlayerPosition;
+  type: "throw" | "normal";
+}
+
+export interface PlayerThrownCardsProps {
+  view: "hidden" | "visible";
+  cardImages: cardImages;
+  numberOfCards: number;
+  cardsList: CardsOfPlayer;
   position: PlayerPosition;
 }
 
 export interface CardProps {
   id: cardId;
   cardImages: cardImages;
+  type: "throw" | "normal";
 }

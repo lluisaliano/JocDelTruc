@@ -1,39 +1,104 @@
 .container {
-  display: flex;
-  position: relative;
+  display: grid;
+  grid-template-areas:
+    ".    top    ."
+    "left  .   right"
+    ".   bottom  .";
+  grid-template-columns: 1fr minmax(200px, 2fr) 1fr; /* Tres columnas */
+  grid-template-rows: auto 1fr auto; /* Tres filas */
+  justify-content: space-between;
+  align-content: space-between;
+  height: 95dvh;
   width: 100dvw;
-  height: 94dvh;
-  padding: 10px;
-  overflow: hidden;
+  position: relative;
 }
 
-.player {
-  position: absolute;
-  margin: 20px;
-  width: 20%;
+.player b {
+  font-size: 0.8rem;
   text-align: center;
+  margin: 0.5rem;
 }
 
 .top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column-reverse;
 }
 
 .right {
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-area: right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column-reverse;
+  gap: 3.2rem;
 }
 
 .left {
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-area: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column-reverse;
+  gap: 3.2rem;
+}
+
+.bottom {
+  grid-area: bottom;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.leftCards {
+  display: flex;
+  gap: 5px;
+  flex-flow: row;
+  transform: rotate(90deg);
+}
+
+.rightCards {
+  display: flex;
+  gap: 5px;
+  flex-flow: row;
+  transform: rotate(-90deg);
+}
+
+.topCards {
+  display: flex;
+  gap: 5px;
+  flex-flow: row;
+}
+
+.bottomCards {
+  display: flex;
+  gap: 5px;
+  flex-flow: row;
+}
+
+.playerCardsContainer {
+  display: flex;
+  flex-flow: column;
+  gap: 2rem;
+}
+
+.playerCardsDiv button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  border: 0.5px solid rgba(0, 0, 0, 0.281);
+  padding: 0px;
+}
+
+.playerCardsDiv button:hover {
+  border: 0.5px solid black;
+}
+
+.playerCardsDiv img {
+  /* Reducir imágenes */
+  vertical-align: middle;
+  min-width: 4rem;
 }

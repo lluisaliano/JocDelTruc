@@ -7,16 +7,28 @@ export function Player({
   position,
   cardImages,
   playerCards,
+  thrownCards,
 }: PlayerProps) {
   return (
     <div className={"player " + `${position}`}>
-      <PlayerCards
-        position={position}
-        cardImages={cardImages}
-        playerCards={playerCards}
-        numberOfCards={3} //TODO CHANGE THIS
-        view={"visible"} //TODO CHANGE THIS
-      ></PlayerCards>
+      <div className="playerCardsContainer">
+        <PlayerCards
+          position={position}
+          cardImages={cardImages}
+          cardsList={thrownCards}
+          numberOfCards={thrownCards.length} //TODO CHANGE THIS
+          view={"visible"} //TODO CHANGE THIS
+          type={"throw"}
+        ></PlayerCards>
+        <PlayerCards
+          position={position}
+          cardImages={cardImages}
+          cardsList={playerCards}
+          numberOfCards={playerCards.length} //TODO CHANGE THIS
+          view={"visible"} //TODO CHANGE THIS
+          type={"normal"}
+        ></PlayerCards>
+      </div>
       <b>{name ? name : "Jugador no conectat"}</b>
     </div>
   );

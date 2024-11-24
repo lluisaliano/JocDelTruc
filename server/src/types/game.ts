@@ -1,7 +1,7 @@
 import WebSocket from "ws"; // We import websockets to get the correct websocket type
 
 // Card IDs Type
-type cardId =
+export type cardId =
   | "un_espasses"
   | "un_bastos"
   | "un_oros"
@@ -48,7 +48,7 @@ export interface User {
 export type Users = User[];
 
 // A player can have 0, 1, 2, 3 cards
-export type PlayerCards = Card[];
+export type CardsOfPlayer = Card[];
 
 //TODO Change optional properties, they should be mandatory
 /**
@@ -58,8 +58,8 @@ export type PlayerCards = Card[];
 export interface Player {
   userName: string;
   position?: PlayerPosition;
-  cards: PlayerCards;
-  thrownCards: PlayerCards;
+  cards: CardsOfPlayer;
+  thrownCards: CardsOfPlayer;
 }
 
 export type Players = Player[];
@@ -67,6 +67,20 @@ export type Players = Player[];
 export interface Score {
   team1: number;
   team2: number;
+}
+
+export type TrucState = "truc" | "none" | "retruc" | "val 9" | "cama";
+
+export type EnvitState = "none" | "envit" | "renvit" | "val 6" | "falta envit";
+
+export interface GameState {
+  team1: [Player, Player];
+  team2: [Player, Player];
+  score: Score;
+  players: Players;
+  currentTurn: Player;
+  trucState: TrucState;
+  envitState: EnvitState;
 }
 
 export type CallType = "truc" | "envit" | "abandonar";

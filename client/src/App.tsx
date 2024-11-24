@@ -33,7 +33,7 @@ function App() {
   return (
     <>
       <main>{page}</main>
-      <ToastContainer position="top-center" autoClose={5000} />
+      <ToastContainer position="top-center" autoClose={2000} />
     </>
   );
 }

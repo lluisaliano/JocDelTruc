@@ -3,22 +3,27 @@ import {
   StartGameResponse,
   NewPlayerResponse,
   ResponseMessage,
+  ErrorResponse,
+  StateResponse,
 } from "../types/messages";
+import { CardsOfPlayer } from "../types/params";
 
 export function handleMessages(
   event: MessageEvent,
-  { setCurrentPlayerCards, setPlayers }: HandleMssagesSetterProps
+  {
+    setCurrentPlayerCards,
+    setPlayers,
+    setThrownPlayerCards,
+  }: HandleMssagesSetterProps
 ) {
   // First we parse event data
   const message: ResponseMessage = JSON.parse(event.data);
   //TODO Receive Cards and Score
   console.log(message);
   switch (message.type) {
-    case "startGameResponse":
-      setCurrentPlayerCards(
-        (message as StartGameResponse).selfPlayerState.cards
-      );
-      return;
+    case "errorResponse":
+      console.error((message as ErrorResponse).errorMessage);
+      break;
     case "newPlayerResponse": {
       // Wrap in {} because we are declaring a variable
       //TODO TEAM SHOULD GO ON TOP ON THE BOARD, SERVER SHOULD SEND TEAM USERNAME TO DO THAT
@@ -39,7 +44,45 @@ export function handleMessages(
             : [...prev, capitalizedUserName];
         }
       });
+      return;
+    }
+
+    case "startGameResponse":
+      setCurrentPlayerCards(
+        (message as StartGameResponse).selfPlayerState.cards
+      );
+      return;
+
+    case "stateUpdate": {
+      const castedMessage = message as StateResponse;
+      const thrownCards: CardsOfPlayer[] = [];
+      for (const player of castedMessage.state.players) {
+        // TODO This randomly assigns thrownCards. We need to handle position depending on team for this to work
+        thrownCards.push(player.thrownCards);
+      }
+      console.log(thrownCards);
+
+      // Set Player Cards
+      setCurrentPlayerCards(
+        (message as StartGameResponse).selfPlayerState.cards
+      );
+
+      // TODO This should only change the thrown card of the player that throw it
+      // TODO To know it, the server should send it
+      /**
+       * Maybe not all players are connected yet
+       * and one throws a card. In that case, we will return an empty array
+       * to thrownCards of other players
+       */
+      setThrownPlayerCards(() => {
+        return {
+          bottom: thrownCards[0] ? thrownCards[0] : [],
+          top: thrownCards[1] ? thrownCards[1] : [],
+          right: thrownCards[2] ? thrownCards[2] : [],
+          left: thrownCards[3] ? thrownCards[3] : [],
+        };
+      });
+      return;
     }
   }
 }
-// setCurrentPlayerCards(message?.playerCards)
