@@ -23,6 +23,7 @@ export function Game({ setAppPage }: PageProps) {
 
   // TODO SHAURIA DEMPRAR UN USEREDUCER O ALGO SIMILAR PER MANETJAR SA LOGICA DE SES CARTES i tot sestat
   const [currentPlayerCards, setCurrentPlayerCards] = useState<PlayerCards>();
+
   // TODO TEAM SHOULD GO ON TOP
   const [players, setPlayers] = useState<string[]>([]);
 
