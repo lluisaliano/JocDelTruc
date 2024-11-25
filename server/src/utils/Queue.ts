@@ -2,8 +2,8 @@ import { Node } from "../types/dataStrucutres.ts";
 import { Player, Players } from "../types/game.ts";
 
 export class Queue {
-  private first: Node;
-  private last: Node;
+  private first: Node | null;
+  private last: Node | null;
   constructor(players: Players, startPlayerPos: number) {
     this.first = { player: players[startPlayerPos], next: null };
     this.last = this.first;
@@ -45,18 +45,24 @@ export class Queue {
   }
 
   getPlayer() {
-    const player = this.first.player;
-    if (!this.first.next) {
+    const node = this.first;
+    if (!node) {
       return null;
     }
-    this.first = this.first.next;
-    return player;
+    this.first = node.next;
+
+    return node.player;
   }
 
   // Get Player Position in the queue
   getPlayerPositionInQueue(player: Player): number {
     let pointer = this.getFirstNode();
     let position = 0;
+
+    // If there are no elements, this will return 0
+    if (!pointer) {
+      return position;
+    }
 
     do {
       if (pointer.player === player) {

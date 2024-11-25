@@ -314,9 +314,55 @@ wss.on("connection", (ws) => {
 let playersTest = ["lluis", "pere", "agus", "bruno"];
 trucMatch = new TrucMatch(playersTest);
 // TODO, THE CONSTRUCTOR IS HARDCODED TO GIVE FIRST TURN TO LLUIS
+// LLUIS
 trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[0])!,
   trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
 );
+// PERE
+trucMatch.playerPlay(
+  trucMatch.getPlayerFromUser(playersTest[1])!,
+  trucMatch.getPlayerFromUser(playersTest[1])!.cards[0].id
+);
+// AGUS
+trucMatch.playerPlay(
+  trucMatch.getPlayerFromUser(playersTest[2])!,
+  trucMatch.getPlayerFromUser(playersTest[2])!.cards[0].id
+);
+// BRUNO
+trucMatch.playerPlay(
+  trucMatch.getPlayerFromUser(playersTest[3])!,
+  trucMatch.getPlayerFromUser(playersTest[3])!.cards[0].id
+);
 
 console.log(trucMatch.getState());
+
+// TODO SOMETIMES ACCESSING TO A CARD IN THIS LAP FAILED
+// LAP 2
+let currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+console.log(trucMatch.getState());
+
+// LAP 3
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+currentTurnPlayer = trucMatch.getState().currentTurn;
+trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);

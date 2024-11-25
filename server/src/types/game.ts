@@ -87,6 +87,8 @@ export interface GameState {
   currentTurn: Player;
   trucState: TrucState;
   envitState: EnvitState;
+  lap: 1 | 2 | 3;
+  maPlayer: Player;
 }
 
 export type CallType =

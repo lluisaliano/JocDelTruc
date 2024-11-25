@@ -173,6 +173,7 @@ export class TrucMatch {
     this.currentTurn = this.turnQueue.getPlayer()!;
 
     // The ma player will be the second player of the round queue, that is because of the before getPlayer(), it will be the first now
+    // We assert it because it will never be null if we have more than 0 players
     this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
   }
 
@@ -189,6 +190,8 @@ export class TrucMatch {
       currentTurn: this.currentTurn,
       trucState: this.trucState,
       envitState: this.envitState,
+      lap: this.lap,
+      maPlayer: this.roundMaPlayer,
     };
     return status;
   }
@@ -346,8 +349,8 @@ export class TrucMatch {
     // TODO This logic should be in another method like assignMaQueueAndPlayer
     // Get player who will start next round
     const player = this.roundInfiniteQueue.getPlayer();
-    // Get Ma Player
-    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
+    // Get Ma Player/ This wont be null because we will always have more than 0 players
+    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate()!;
     // Define turnQueue
     this.turnQueue = new Queue(
       this.players,
