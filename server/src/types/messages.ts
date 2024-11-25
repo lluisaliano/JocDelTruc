@@ -1,4 +1,4 @@
-import { cardId, CardsOfPlayer, GameState } from "./game";
+import { cardId, CardsOfPlayer, GameState, Player } from "./game";
 
 // RECIEVED MESSAGES
 //TODO Change data propery to its possible types...
@@ -44,7 +44,7 @@ export interface ResponseMessage {
 
 //TODO TEMPORARY TYPE USING gameState
 export interface StartGameResponse extends ResponseMessage {
-  gameState: GameState;
+  state: GameState;
   selfPlayerState?: Player;
 }
 
@@ -67,10 +67,3 @@ export interface Score {
   team1: number;
   team2: number;
 }
-export interface Player {
-  userName: string;
-  position?: PlayerPosition;
-  cards: CardsOfPlayer;
-  thrownCards: CardsOfPlayer;
-}
-export type Players = Player[];

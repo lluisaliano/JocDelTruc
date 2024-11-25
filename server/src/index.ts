@@ -214,7 +214,7 @@ wss.on("connection", (ws) => {
 
           responseMessage = {
             type: "startGameResponse",
-            gameState: gameState,
+            state: gameState,
             selfPlayerState: selfPlayerState,
           } as StartGameResponse;
 
@@ -294,23 +294,15 @@ wss.on("connection", (ws) => {
             (player) => player.userName === user.userName
           );
 
+          // TODO This should change the player that thrown the card too to only update that on ui...
           responseMessage = {
-            type: "startGameResponse",
-            gameState: gameState,
+            type: "stateUpdate",
+            state: gameState,
             selfPlayerState: selfPlayerState,
-          } as StartGameResponse;
+          } as StateResponse;
 
           user.socket.send(JSON.stringify(responseMessage));
         }
-
-        // TODO This should change the player that thrown the card too to only update that on ui...
-        responseMessage = {
-          type: "stateUpdate",
-          state: gameState,
-          selfPlayerState: selfPlayerState,
-        } as StateResponse;
-        // Send new status
-        ws.send(JSON.stringify(responseMessage));
 
         return;
       }

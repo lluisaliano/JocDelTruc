@@ -34,7 +34,12 @@ export type cardId =
   | "amo"
   | "back_card";
 
-export type Card = { id: cardId; value: number };
+export type Card = {
+  id: cardId;
+  trucValue: number;
+  envitValue: number;
+  palo: string;
+};
 
 export type Cards = Array<Card>;
 
@@ -60,6 +65,7 @@ export interface Player {
   position?: PlayerPosition;
   cards: CardsOfPlayer;
   thrownCards: CardsOfPlayer;
+  envit: number;
 }
 
 export type Players = Player[];
@@ -69,9 +75,9 @@ export interface Score {
   team2: number;
 }
 
-export type TrucState = "truc" | "none" | "retruc" | "val 9" | "cama";
+export type TrucState = "none" | "truc" | "retruc" | "val_9" | "cama";
 
-export type EnvitState = "none" | "envit" | "renvit" | "val 6" | "falta envit";
+export type EnvitState = "none" | "envit" | "renvit" | "val_6" | "falta_envit";
 
 export interface GameState {
   team1: [Player, Player];
