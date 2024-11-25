@@ -149,6 +149,13 @@ export class TrucMatch {
     // Assign them shuffled cards
     this.shuffleCards();
 
+    //TODO REMOVE THIS IS FOR DEBUG
+    this.players[0].cards = [
+      { id: "cinc_oros", trucValue: 2, envitValue: 5, palo: "oros" },
+      { id: "tres_copes", trucValue: 7, envitValue: 3, palo: "copes" },
+      { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
+    ];
+
     // Assign envit to players
     this.assignEnvitToPlayers();
 
@@ -535,10 +542,11 @@ export class TrucMatch {
       // Check if comodin is stored in map
       const comodinEnvitScore = palosMap.get("comodin");
       // If comodin  is not stored, but palos contains a comodin, create the comodin key on the set
+      // And store this cardEnvitScore
       if (!comodinEnvitScore && palos.find((p) => p === "comodin")) {
         palosMap.set("comodin", {
           value: 0,
-          cardsValues: [0],
+          cardsValues: [cardsEnvitScore[i]],
         });
       }
       // If we have a comodin, and this current iteration palo is not comodin (because it will be already stored)
