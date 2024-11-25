@@ -149,26 +149,30 @@ export class TrucMatch {
     // Assign them shuffled cards
     this.shuffleCards();
 
-    //TODO REMOVE THIS IS FOR DEBUG
-    this.players[0].cards = [
-      { id: "cinc_oros", trucValue: 2, envitValue: 5, palo: "oros" },
-      { id: "tres_copes", trucValue: 7, envitValue: 3, palo: "copes" },
-      { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
-    ];
-
     // Assign envit to players
     this.assignEnvitToPlayers();
 
     // Get random player who will start the round and lap and save the turns in an infinite queue
-    const playerPosition = randomInteger(this.players.length);
+    //TODO THIS WAS COMMENTED FOR TESTING PURPOSES REMOVE
+    //const playerPosition = randomInteger(this.players.length);
+    const playerPosition = 0; // So it always is lluis
     this.roundInfiniteQueue = new InfiniteQueue(this.players, playerPosition);
-    this.turnQueue = new Queue(this.players, playerPosition);
 
-    // Current turn on beginning will be the player who starts the round turn
+    // We get the player on purpose to advance a position on roundInfiniteQueue
+    const player = this.roundInfiniteQueue.getPlayer();
+
+    // We create the turnQueue
+    this.turnQueue = new Queue(
+      this.players,
+      this.getPlayerPositionInPlayersArray(player)
+    );
+
+    // Current turn on beginning will be the player who is first on the turnQueue
+    // (also this is the one who started the round turn)
     // If we have more than 0 players, this will not be null, so we assert it
     this.currentTurn = this.turnQueue.getPlayer()!;
 
-    // The ma player will be the second player of the round queue, that because of the before update, it will be the first now
+    // The ma player will be the second player of the round queue, that is because of the before getPlayer(), it will be the first now
     this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
   }
 
@@ -246,16 +250,19 @@ export class TrucMatch {
     if (!chosenCard) {
       throw new Error("PLAYER DOES NOT HAVE THIS CARD");
     }
+
+    if (player !== this.currentTurn) {
+      throw new Error("PLAYER HAS NO TURN");
+    }
     // Change card from player cards to player thrown cards
     player.cards = player.cards.filter(
       (playerCard) => playerCard !== chosenCard
     );
     player.thrownCards.push(chosenCard);
 
-    // Get next turn player
-    const nextTurnPlayer = this.getNextCurrentTurn(player);
+    // set next current turn
     // If the lap is over, next turn player will be null, so we must start next lap
-    if (!nextTurnPlayer) {
+    if (!this.setNextCurrentTurn()) {
       // If startNextLap return null, it means we have to start next round because we have ended lap 3
       // We have to handle score updates here
       if (!this.startNextLap(this.getLapTrucWinnerPlayer(this.lap))) {
@@ -268,22 +275,23 @@ export class TrucMatch {
 
         this.startNextRound();
       }
-    } else {
-      // We assign player to this.currentTurn
-      this.currentTurn = nextTurnPlayer;
     }
 
     //TODO HERE WE SHOULD RETURN IF THE ROUND IS OVER AND UPDATE EVERYING AND SEND IT TO THE CLIENT
   }
 
   /**
-   * Given a player it returns the player who is on the next turn
+   * This updates the next turn
    * if the lap is over, it returns null
-   * @param player current turn player
-   * @returns next current turn player
+   * @returns next current turn player or null
    */
-  private getNextCurrentTurn(player: Player) {
-    return this.turnQueue.getPlayer();
+  private setNextCurrentTurn() {
+    const nextCurrentTurn = this.turnQueue.getPlayer();
+    if (nextCurrentTurn) {
+      this.currentTurn = nextCurrentTurn;
+      return this.currentTurn;
+    }
+    return nextCurrentTurn;
   }
 
   /**

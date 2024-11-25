@@ -313,12 +313,10 @@ wss.on("connection", (ws) => {
 // We will test the trucMatch class here:
 let playersTest = ["lluis", "pere", "agus", "bruno"];
 trucMatch = new TrucMatch(playersTest);
-
-console.log(trucMatch.getState());
-
+// TODO, THE CONSTRUCTOR IS HARDCODED TO GIVE FIRST TURN TO LLUIS
 trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[0])!,
   trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
 );
 
-console.log(trucMatch.getState);
+console.log(trucMatch.getState());

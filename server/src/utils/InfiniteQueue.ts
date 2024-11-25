@@ -19,4 +19,11 @@ export class InfiniteQueue extends Queue {
   getPlayerWithoutUpdate() {
     return super.getFirstNode().player;
   }
+
+  // AUX METHOD NOT USED
+  private getSecondPlayerWithoutUpdate() {
+    // This will not be null because it is an infinite linked list
+    const secondPlayer = super.getFirstNode().next!;
+    return secondPlayer.player;
+  }
 }
