@@ -89,4 +89,9 @@ export interface GameState {
   envitState: EnvitState;
 }
 
-export type CallType = "truc" | "envit" | "abandonar";
+export type CallType =
+  | "truc"
+  | "envit"
+  | "abandonar"
+  | "acceptTruc"
+  | "acceptEnvit";

@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": ".ts,.js",
   "ignore": [],
-  "exec": "npx tsx ./src/index.ts"
+  "exec": "npx tsc --noEmit && node --loader ts-node/esm src/index.ts"
 }

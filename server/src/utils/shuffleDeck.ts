@@ -1,5 +1,5 @@
-import { Cards } from "../types/game";
-import { randomInteger } from "./functions";
+import { Cards } from "../types/game.ts";
+import { randomInteger } from "./functions.ts";
 
 // FISHER YATES ALGORITHM TO SHUFFLE CARDS
 export function shuffleDeck(deck: Cards) {

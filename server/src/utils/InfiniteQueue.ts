@@ -1,5 +1,5 @@
-import { Player, Players } from "../types/game";
-import { Queue } from "./Queue";
+import { Player, Players } from "../types/game.ts";
+import { Queue } from "./Queue.ts";
 
 export class InfiniteQueue extends Queue {
   constructor(players: Players, startPlayerPos: number) {
@@ -14,5 +14,9 @@ export class InfiniteQueue extends Queue {
     super.setFirstNode(node.next!);
     super.setLastNode(node);
     return node.player;
+  }
+
+  getPlayerWithoutUpdate() {
+    return super.getFirstNode().player;
   }
 }

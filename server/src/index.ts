@@ -5,7 +5,7 @@ import { WebSocketServer } from "ws";
 
 import { Users } from "./types/game.ts";
 import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
-import { TrucMatch } from "./game/TrucMatch";
+import { TrucMatch } from "./game/TrucMatch.ts";
 import {
   ErrorResponse,
   Message,
@@ -201,8 +201,8 @@ wss.on("connection", (ws) => {
         if (users.length !== 4) {
           console.log("THERE ARE NOT 4 USERS");
         }
-        // Create new match
-        trucMatch = new TrucMatch(users);
+        // Create new match  sending userNames
+        trucMatch = new TrucMatch(users.map((p) => p.userName));
 
         const gameState = trucMatch.getState();
 
@@ -309,3 +309,16 @@ wss.on("connection", (ws) => {
     }
   });
 });
+
+// We will test the trucMatch class here:
+let playersTest = ["lluis", "pere", "agus", "bruno"];
+trucMatch = new TrucMatch(playersTest);
+
+console.log(trucMatch.getState());
+
+trucMatch.playerPlay(
+  trucMatch.getPlayerFromUser(playersTest[0])!,
+  trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
+);
+
+console.log(trucMatch.getState);

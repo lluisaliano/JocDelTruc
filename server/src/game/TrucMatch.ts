@@ -1,12 +1,4 @@
-// This class will create instance of a match of Truc
-
 //TODO DEFINE ROUND, LAP, TURN AND APPLY BEFORE DOING ANYTHING ELSE
-/**
- * The turnQueue and roundInfiniteQueue is build in order depending on how players are stored in players array
- * TURN: player1 -> player2 -> player3 -> player4
- * LAP: A COMPLETE TURN
- * ROUND: 3 LAPS
- */
 
 import {
   Players,
@@ -19,20 +11,58 @@ import {
   EnvitState,
   cardId,
 } from "../types/game";
-import { randomInteger } from "../utils/functions";
+import { randomInteger } from "../utils/functions.ts";
 
-import { cards } from "./cards";
-import { shuffleDeck } from "../utils/shuffleDeck";
-import { Queue } from "../utils/Queue";
-import { InfiniteQueue } from "../utils/InfiniteQueue";
-import { MaQueue } from "../utils/MaQueue";
+import { cards } from "./cards.ts";
+import { shuffleDeck } from "../utils/shuffleDeck.ts";
+import { Queue } from "../utils/Queue.ts";
+import { InfiniteQueue } from "../utils/InfiniteQueue.ts";
 
-// TODO THIS class could compare players with reference maybe instead of username?
-// TODO Matches should accept more than 4 players, 2, 6, 8...
-// TODO In the future this class constructor wil accept mutators, which will change the rules of the game
+/**
+ * Description:
+ * This class represents a truc match
+ * It will manage and keep all logic and states of the match.
+ *
+ * To Acknowledge:
+ * Currently it only supports 2 teams of 2 players each.
+ * To add more players, they should be added on a team, a match will always have 2 teams
+ * The goal in the future is that it supports mutators, which will be parameters that will allow to change
+ * game rules
+ *
+ * Definitions:
+ * TURN: When a player throws one card.
+ * LAP: When all players have thrown one card.
+ * ROUND: When 3 laps are done, or less if an special case has happened
+ *
+ * players: Array that contains all players of the match
+ *
+ * team{1,2}: Array that contain the players of the team
+ *
+ * player: Object that contains, the userName, the cards, the thrownCards, and the envit of the player
+ *
+ * turnQueue: Queue that represents how the turns in one lap will ocurr.
+ * It will be updated when a lap or a round has finished.
+ *
+ * currentTurn: Player who has the currentTurn
+ *
+ * roundInfiniteQueue: Represents the order of the players.
+ * This is used to know who has to start the next round, and how to define the next round first turnQueue
+ *
+ * The player who starts the next round is defined like this example:
+ * At first we do: let player1 = getRandomPLayer
+ * Then:
+ * player1 -> player2 -> player3 -> player4 -> player1 -> player2 -> (until match ends)
+ *
+ * roundMaPlayer: Player who is ma of the round
+ *
+ * trucState: Truc confirmed situation
+ *
+ * envitState: Envit confirmed situation
+ *
+ * score: Score of the game
+ */
 export class TrucMatch {
   // Array that contains match players
-  // TODO and thrown cards prop should also appear
   private players: Players = [];
 
   // Teams tuples
@@ -48,7 +78,7 @@ export class TrucMatch {
   private lap: 1 | 2 | 3 = 1;
 
   // This array will contain the team which has won the rounds
-  private trucWonLaps: ([Player, Player] | typeof this.TIE)[];
+  private trucWonLaps: ([Player, Player] | typeof this.TIE)[] = [];
 
   // Define turnsWith with a Queue
   private turnQueue: Queue;
@@ -59,9 +89,6 @@ export class TrucMatch {
   // Player who starts the round
   private roundInfiniteQueue: InfiniteQueue;
 
-  // Define lapMa Queue, this will store the list of which player is ma over other player in a round
-  private roundMaQueue: MaQueue;
-
   // Define 'ma' player of the round (The one who throws first card)
   private roundMaPlayer: Player;
 
@@ -71,6 +98,7 @@ export class TrucMatch {
     team2: 0,
   };
 
+  // CONSTANTS
   // Score need to win
   private readonly WIN_SCORE = 24;
 
@@ -95,39 +123,35 @@ export class TrucMatch {
     falta_envit: 0,
   };
 
-  // TODO CONSTRUCTOR SHOULD USE METHODS TO START THE FIRST ROUND
-  constructor(users: Users) {
-    // TODO This currently supports 4 users matches, here we allow less for testing
-    if (users.length > 4 || users.length === 0) {
+  // TODO Constructor could rely on some methods
+  constructor(usersNames: string[]) {
+    // This currently supports 4 users matches, here we allow less for testing
+    if (usersNames.length > 4 || usersNames.length === 0) {
       throw new Error("THERE SHOULD BE 4 USERS OR MORE THAN 0");
     }
 
-    // Create a player with the users
-    for (let i = 0; i < users.length; i++) {
+    // Create players with users
+    for (let i = 0; i < usersNames.length; i++) {
       const player: Player = {
-        userName: users[i].userName,
+        userName: usersNames[i],
         thrownCards: [],
         cards: [],
         envit: 0,
       };
       this.players[i] = player;
     }
-    // Assign them shuffled cards
-    this.shuffleCards();
-
-    // Assign envit to players
-    this.assignEnvitToPlayers();
 
     // Select teams
     //TODO Users should be able to choose their team
     this.team1 = [this.players[0], this.players[2]];
     this.team2 = [this.players[1], this.players[3]];
 
-    // The winned Rounds array is empty because any team has now won any round
-    this.trucWonLaps = [];
+    // Assign them shuffled cards
+    this.shuffleCards();
 
-    // TODO This should be in another method like assignMaQueueAndPlayer - (UPDATE: IN THE CONSTRUCTOR
-    // TODO YOU HAVE TO DECLARE THE VARIABLES DIRECTLY, YOU CANT USE METHODS)
+    // Assign envit to players
+    this.assignEnvitToPlayers();
+
     // Get random player who will start the round and lap and save the turns in an infinite queue
     const playerPosition = randomInteger(this.players.length);
     this.roundInfiniteQueue = new InfiniteQueue(this.players, playerPosition);
@@ -137,8 +161,8 @@ export class TrucMatch {
     // If we have more than 0 players, this will not be null, so we assert it
     this.currentTurn = this.turnQueue.getPlayer()!;
 
-    this.roundMaQueue = new MaQueue(this.players, playerPosition);
-    this.roundMaPlayer = this.roundMaQueue.getPlayer();
+    // The ma player will be the second player of the round queue, that because of the before update, it will be the first now
+    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
   }
 
   // This method will return a json with the current game status with everything, to send messages to clients
@@ -174,6 +198,8 @@ export class TrucMatch {
           // and do the same logic than before
         }
         break;
+      case "acceptEnvit":
+        break;
       case "truc":
         // Get truc status
         /**
@@ -188,6 +214,8 @@ export class TrucMatch {
          * if truc is not none, ask other players for retruc
          * and do the same logic than before
          */
+        break;
+      case "acceptTruc":
         break;
       case "abandonar":
       /**
@@ -300,16 +328,18 @@ export class TrucMatch {
     this.shuffleCards();
     this.assignEnvitToPlayers();
 
-    // Get player who will start next round
     // TODO This logic should be in another method like assignMaQueueAndPlayer
+    // Get player who will start next round
     const player = this.roundInfiniteQueue.getPlayer();
+    // Get Ma Player
+    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
+    // Define turnQueue
     this.turnQueue = new Queue(
       this.players,
       this.getPlayerPositionInPlayersArray(player)
     );
+    // Define Current Turn
     this.currentTurn = this.turnQueue.getPlayer()!;
-
-    this.assignMaQueueAndPlayer(this.getPlayerPositionInPlayersArray(player));
 
     //TODO NOTIFY CLIENTS
     // TODO WE SHOULD USE RETURNS TO NOTIFY THIS
@@ -389,7 +419,7 @@ export class TrucMatch {
       let playerThrownCard = this.getPlayerThrownCardInLap(player, lap);
 
       thrownCardsAndPlayers.push({
-        thrownCardValue: playerThrownCard.trucValue,
+        thrownCardValue: playerThrownCard?.trucValue,
         player: player,
       });
     }
@@ -434,7 +464,10 @@ export class TrucMatch {
   }
 
   /**
-   * This function return the envit of a player. It can probably be optimized...
+   * This function return the envit of a player.
+   * It can probably be optimized...
+   * One way of optimizing would be: because comodin provide the highest envit, we would just need to check,
+   * if we have a comodin, which card gives the higher envit to know it
    * @param player
    * @retuns player envit
    */
@@ -446,7 +479,9 @@ export class TrucMatch {
      * @param arrayOfPoints
      * @returns number
      */
-    const getMaxPointsCombination = (arrayOfPoints: number[]) => {
+    const getMaxPointsCombination = (array: number[]) => {
+      // Do an array copy
+      const arrayOfPoints = [...array];
       if (arrayOfPoints.length === 1) {
         return arrayOfPoints[0];
       }
@@ -492,13 +527,23 @@ export class TrucMatch {
       }
 
       /**
-       * If we have a comodin in the set, we will add all palos to it, because it has envit with every palo
+       * If we have a comodin in the map, we will add all palos to it, because it has envit with every palo
        * The envit is counted from the two biggest cards (The biggest possible values in envit game are 8 and 7), and we have three total cards, so there is no problem
        * in storing diffrent palos in comodin Envit Score, because, if we have a comodin, there will be two cards with the biggest possible
        * card combination
        */
+      // Check if comodin is stored in map
       const comodinEnvitScore = palosMap.get("comodin");
-      if (comodinEnvitScore) {
+      // If comodin  is not stored, but palos contains a comodin, create the comodin key on the set
+      if (!comodinEnvitScore && palos.find((p) => p === "comodin")) {
+        palosMap.set("comodin", {
+          value: 0,
+          cardsValues: [0],
+        });
+      }
+      // If we have a comodin, and this current iteration palo is not comodin (because it will be already stored)
+      // Store the card Envit Value in comodin key
+      if (comodinEnvitScore && palos[i] !== "comodin") {
         const newComodinEnvitScoreCards = [...comodinEnvitScore.cardsValues];
         newComodinEnvitScoreCards.push(cardsEnvitScore[i]);
         let newScoreForComodin = getMaxPointsCombination(
@@ -516,7 +561,8 @@ export class TrucMatch {
      * and recover the biggest value number and return it
      */
     let biggestEnvitValue = 0;
-    for (const palo of palosMap.values()) {
+    for (const paloKey of palosMap.keys()) {
+      const palo = palosMap.get(paloKey)!;
       if (palo.cardsValues.length > 1) {
         let paloValue = palo.value + 20;
         biggestEnvitValue =
@@ -589,11 +635,6 @@ export class TrucMatch {
     }
   }
 
-  private assignMaQueueAndPlayer(startPlayerPos: number) {
-    this.roundMaQueue = new MaQueue(this.players, startPlayerPos);
-    this.roundMaPlayer = this.roundMaQueue.getPlayer();
-  }
-
   private getPlayerPositionInPlayersArray(player: Player) {
     return this.players.findIndex((p) => p === player);
   }
@@ -627,7 +668,7 @@ export class TrucMatch {
     // Check if there has been tie, get the 'ma' position of the player who is 'ma'
     if (team1EnvitAndTies.players.length > 1) {
       team1EnvitAndTies.maPos =
-        this.roundMaQueue.getFirstPlayerPosFromArrayOfPlayers(
+        this.roundInfiniteQueue.getFirstPlayerPosFromArrayOfPlayers(
           team1EnvitAndTies.players
         );
     }
@@ -650,7 +691,7 @@ export class TrucMatch {
     // Check if there has been a tie, get the 'ma' position of the player who is 'ma'
     if (team2EnvitAndTies.players.length > 1) {
       team2EnvitAndTies.maPos =
-        this.roundMaQueue.getFirstPlayerPosFromArrayOfPlayers(
+        this.roundInfiniteQueue.getFirstPlayerPosFromArrayOfPlayers(
           team2EnvitAndTies.players
         );
     }
