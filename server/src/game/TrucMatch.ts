@@ -15,12 +15,11 @@ import {
   roundState,
   TieAndMaPlayer,
 } from "../types/game";
-import { randomInteger } from "../utils/functions.ts";
 
-import { cards } from "./cards.ts";
-import { shuffleDeck } from "../utils/shuffleDeck.ts";
-import { Queue } from "../utils/Queue.ts";
-import { InfiniteQueue } from "../utils/InfiniteQueue.ts";
+import { cards } from "./cards";
+import { shuffleDeck } from "../utils/shuffleDeck";
+import { Queue } from "../utils/Queue";
+import { InfiniteQueue } from "../utils/InfiniteQueue";
 
 /**
  * Description:

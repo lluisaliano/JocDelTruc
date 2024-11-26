@@ -3,9 +3,9 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 
-import { Users } from "./types/game.ts";
-import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
-import { TrucMatch } from "./game/TrucMatch.ts";
+import { Users } from "./types/game";
+import { AuthenticationData, RegisteredUsers } from "./types/api";
+import { TrucMatch } from "./game/TrucMatch";
 import {
   ErrorResponse,
   Message,

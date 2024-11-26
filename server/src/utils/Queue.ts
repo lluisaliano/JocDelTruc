@@ -1,5 +1,5 @@
-import { Node } from "../types/dataStrucutres.ts";
-import { Player, Players } from "../types/game.ts";
+import { Node } from "../types/dataStrucutres";
+import { Player, Players } from "../types/game";
 
 export class Queue {
   private first: Node | null;
