@@ -73,10 +73,14 @@ export class TrucMatch {
   private team2: Team;
 
   // Game State
-  // This two states change when envit or truc is confirmed
+  // This two states change when envit or truc is accepted
   private trucState: TrucState = "none";
 
   private envitState: EnvitState = "none";
+
+  // This two states change when for envit or truc is asked
+  private askedEnvit: EnvitState = "none";
+  private askedTruc: TrucState = "none";
 
   private lap: number = 1;
 
@@ -123,7 +127,7 @@ export class TrucMatch {
     envit: 2,
     renvit: 4,
     val_6: 6,
-    falta_envit: 0,
+    falta_envit: this.WIN_SCORE,
   };
 
   // TODO Constructor could rely on some methods
@@ -212,55 +216,104 @@ export class TrucMatch {
   }
 
   // Current turn player asks for 'truc', 'envit' or 'abandonar'
-  playerCall(callType: CallType) {
+  //TODO THIS SHOULD RETURN TYPE OF PLAYER CALL AND DATA (NOT NULL)... IMPORTANT TO TAKE IN COUNT IF BETTER ENVIT OR TRUC CANT BE ASKED TO NOTIFY CLIENT
+  playerCall(player: Player, callType: CallType) {
+    if (player !== this.currentTurn) {
+      throw new Error("PLAYER HAS NO TURN");
+    }
+
     switch (callType) {
       case "envit":
-        if (this.lap === 1) {
-          // CHECK envit status. if none do the following
-          // Send to other team players a message asking for envit
-          // get response(If one wants, then envit is accepted)
-          // if envit is accepted then this.envitState is envit
-          // if other team players ask for renvit
-          // send original envit team asker for accept or val 6...
-          // Change envit status to what corresponds
-          // IF envit status is not none, ask other players for renvit
-          // and do the same logic than before
-          /**
-           * If envit is called and there is an envit Status different than none,
-           * it means the player is calling for a renvit, val 6... so we change that
-           */
-        }
-        break;
-      case "acceptEnvit":
-        break;
-      case "truc":
-        // Get truc status
         /**
-         * If truc is none
-         * send to other team players a message asking for truc
-         * get response(if one want, the truc is accepted)
-         * if truc is accepted then  then this.trucState is truc
-         * if other team players ask for retruc
-         * send original truc team asker for accept or val 9
-         * change truc status to what corresponds
-         *
-         * if truc is not none, ask other players for retruc
-         * and do the same logic than before
+         * Update askedEnvit depending on envitState and return askedEnvit
          */
-        break;
+        switch (this.envitState) {
+          // If askedEnvit is "falta_envit" return null, because it cannot be asked a better envit than that
+          case "falta_envit":
+            return null;
+          case "none":
+            this.askedEnvit = "envit";
+            break;
+          case "envit":
+            this.askedEnvit = "renvit";
+            break;
+          case "renvit":
+            this.askedEnvit = "val_6";
+            break;
+          case "val_6":
+            this.askedEnvit = "falta_envit";
+            break;
+        }
+
+        return this.askedEnvit;
+
+      case "acceptEnvit":
+        // If asked envit is null, there is nothing to be accepted
+        if (this.askedEnvit === "none") {
+          return null;
+        }
+        /**
+         * Assign askedEnvit to envitState and return envitState
+         */
+        this.envitState = this.askedEnvit;
+
+        return this.envitState;
+
+      case "truc":
+        /**
+         * Update askedTruc depending on trucState and return askedTruc
+         */
+        switch (this.trucState) {
+          // If askedTruc is "cama" return null, because it cannot be asked a better truc than that
+          case "cama":
+            return null;
+          case "none":
+            this.askedTruc = "truc";
+            break;
+          case "truc":
+            this.askedTruc = "retruc";
+            break;
+          case "retruc":
+            this.askedTruc = "val_9";
+            break;
+          case "val_9":
+            this.askedTruc = "cama";
+            break;
+        }
+
+        return this.trucState;
+
       case "acceptTruc":
-        break;
+        // If asked envit is null, there is nothing to be accepted
+        if (this.askedTruc === "none") {
+          return null;
+        }
+        /**
+         * Assign askedEnvit to envitState and return envitState
+         */
+        this.envitState = this.askedEnvit;
+
+        return this.envitState;
+
       case "abandonar":
-      /**
-       * send a message to other team players that this team has abandoned
-       * give corresponding points depending on envit winner ( which depends on envit status)
-       * give corresponding points depending on truc status to other team
-       * WE WILL HAVE TO MODIFY SETNEXTLAP PROBABLY AND UPDATENVIT...
-       */
+        /**
+         * send a message to other team players that this team has abandoned
+         * give corresponding points depending on envit winner ( which depends on envit status)
+         * give corresponding points depending on truc status to other team
+         * WE WILL HAVE TO MODIFY SETNEXTLAP PROBABLY AND UPDATENVIT...
+         */
+        // CALL STARTNEXTROUND WITH CALLTYPE ABANDON
+        // Update Score
+        this.updateMatchScore("ABANDON");
+
+        // Start next round
+        this.startNextRound();
+
+        //TODO THIS SHOULD RETURN ABANDON STATE AND TEAM
+        return null;
     }
   }
 
-  // TODO THIS LOGIC SHOULD BE PROBABLY CHANGED ...
   /**
    * This method is called when a player throws his card
    * It updates the currentTurn and check if player has the card he is throwing
@@ -285,7 +338,6 @@ export class TrucMatch {
 
     // set next current turn
     // If the lap is over, next turn player will be null, so we must start next lap
-    let isMatchOver;
     if (!this.setNextCurrentTurn()) {
       /**
        * If startNextLap returns CURRENT_ROUND_IS_NOT_FINISHED,
@@ -299,18 +351,13 @@ export class TrucMatch {
         // Update Score
         this.updateMatchScore(roundState);
 
-        // Before starting a new round, we must check if a team has won
-        // If a team has won, return that team
-        isMatchOver = this.isMatchOver();
-
         this.startNextRound(); // HERE IT IS RETURNED IF MATCH IS OVER
+        //TODO WE SHOULD NOTIFY THE PLAYER THAT WE ARE STARTING A NEXTROUND
       }
     }
 
-    if (isMatchOver) {
-    } // TODO NOTIFY PLAYERS OF TEAM VICTORY
-
     //TODO HERE WE SHOULD RETURN IF THE ROUND IS OVER AND UPDATE EVERYING AND SEND IT TO THE CLIENT
+    //TODO WE SHOULD NOTIFY THE CLIENT OF THROWN CARDS... OR DO IT IN A GETSTATE IMRPOVED METHOD
   }
 
   /**
@@ -337,7 +384,6 @@ export class TrucMatch {
     return player.thrownCards[lap - 1];
   }
 
-  // TODO THIS SHOULD HANDLE SPECIAL CASES, DESCRIBED IN updateMatchScore, like if tie in first round return null
   /**
    * Start next lap, if lap 3 has ended, we must start a new round, so this method will return null and playerPlay
    * will handle it
@@ -394,7 +440,13 @@ export class TrucMatch {
   }
 
   private startNextRound() {
-    // Create new turnqueue from startRoundPlayer
+    // Before starting a new round, we must check if a team has won
+    // If a team has won, return that team
+    const isMatchOver = this.isMatchOver();
+    if (isMatchOver) {
+      return "MATCH IS OVER NOTIFICATION"; //TODO THIS NOTIFICATION MESSAGE SHOULD BE IMPROVED...
+    }
+    // Create new turnQueue from startRoundPlayer
     //reset lap variables
     // Reset round state and start new round
     this.trucWonLaps = [];
@@ -418,10 +470,8 @@ export class TrucMatch {
 
     //TODO NOTIFY CLIENTS
     // TODO WE SHOULD USE RETURNS TO NOTIFY THIS
-    //TODO MAYBE THIS METHOD SHOULD BE CALLED AND PLAYERPLAY AND NOT ON PLAYNEXTROUND
   }
 
-  // TODO Handle Special Cases and describe functionallity better
   /**
    * This method will update match score
    * It will update the score depending on how the round was,
@@ -449,8 +499,6 @@ export class TrucMatch {
    */
   private updateMatchScore(roundState: roundState) {
     // GET TRUC WINNER
-    // This variable will have the trucPoints to give
-    const trucPoints: number = this.trucScore[this.trucState];
     // This variable will have the winnerTeam
     let winnerTeam: Team | null = null;
     /**
@@ -516,15 +564,24 @@ export class TrucMatch {
       }
     }
 
-    // If there is not a winnerTeam, we will have an error, because a team should be assigned always
+    // If a player abandon, give victory to other team
+    if (roundState === "ABANDON") {
+      // Player who called Abandon will be on the this.currenTurn variable.
+      const player = this.currentTurn;
+      // Save on winnerTeam the team that did not abandon(If player is in team1, save team2, otherwise save team1)
+      winnerTeam =
+        this.getPlayerTeam(player) === this.team1 ? this.team2 : this.team1;
+    }
     if (!winnerTeam)
+      // If there is not a winnerTeam, we will have an error, because a team should be assigned always
       throw new Error("THERE IS NO WINNER TEAM TO UPDATE MATCH SCORE");
 
     // Finally, we update matchScore
+    const trucPoints: number = this.trucScore[this.trucState];
     if (winnerTeam === this.team1) {
-      this.score.team1 = this.score.team1 + this.trucScore[this.trucState];
+      this.score.team1 = this.score.team1 + trucPoints;
     } else {
-      this.score.team2 = this.score.team2 + this.trucScore[this.trucState];
+      this.score.team2 = this.score.team2 + trucPoints;
     }
 
     /**
@@ -535,7 +592,6 @@ export class TrucMatch {
 
   /**
    * update truc winner team on a lap and assign it to this.trucWonLaps, if there is a tie, we will push tie constant
-   * TODO This has to handle tie in first lap, and ties in other laps
    * @param lap
    * @returns The player who won the round
    */
@@ -576,7 +632,7 @@ export class TrucMatch {
       winner = { tie: false, player: team1PlayerAndCard.player };
     }
 
-    // Assign the team that won the round or if there was a tie to won rounds array
+    // Assign the team that won the round or this.TIE to won laps array
     if (winner.tie) {
       this.trucWonLaps[lap - 1] = this.TIE;
     } else {
@@ -773,7 +829,7 @@ export class TrucMatch {
     return this.players.findIndex((p) => p === player);
   }
 
-  //TODO THERE IS CODE THAT REPEATS HERE, WE COUD CALL THE CODE ONCE FOR TEAM
+  //TODO THERE IS CODE THAT REPEATS HERE, WE COULD CALL THE CODE ONCE FOR TEAM
   /**
    * This method encapsulates the updating of the envit score functionality
    * It is used inside updateMatchScore method
@@ -837,37 +893,18 @@ export class TrucMatch {
           false
         ) as number;
     }
-    // TODO THIS LOGIC HAS TO BE IMPROVED
+
     // Update envit points to winnerTeam
     if (team1EnvitAndTies.value > team2EnvitAndTies.value) {
-      // If we have falta envit, team1 won the match, so we give them max points
-      if (this.envitState === "falta_envit") {
-        this.score.team1 = this.WIN_SCORE;
-      } else {
-        this.score.team1 += this.envitScore[this.envitState];
-      }
+      this.score.team1 = this.envitScore[this.envitState];
     } else if (team1EnvitAndTies.value < team2EnvitAndTies.value) {
-      // If we have falta envit, team1 won the match, so we give them max points
-      if (this.envitState === "falta_envit") {
-        this.score.team2 = this.WIN_SCORE;
-      } else {
-        this.score.team2 += this.envitScore[this.envitState];
-      }
+      this.score.team2 += this.envitScore[this.envitState];
     } else {
       // If both teams tie envit, the team who is 'ma' wins
       if (team1EnvitAndTies.maPos < team2EnvitAndTies.maPos) {
-        // If we have falta envit, team1 won the match, so we give them max points
-        if (this.envitState === "falta_envit") {
-          this.score.team1 = this.WIN_SCORE;
-        } else {
-          this.score.team1 += this.envitScore[this.envitState];
-        }
+        this.score.team1 += this.envitScore[this.envitState];
       } else {
-        if (this.envitState === "falta_envit") {
-          this.score.team2 = this.WIN_SCORE;
-        } else {
-          this.score.team2 += this.envitScore[this.envitState];
-        }
+        this.score.team2 += this.envitScore[this.envitState];
       }
     }
   }
