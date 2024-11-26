@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "server for Truco Game Menorca",
+  "description": "Server for Truc Menorquí",
   "main": "./src/index.ts",
   "type": "module",
   "scripts": {
@@ -13,16 +13,16 @@
   "author": "lluis",
   "license": "ISC",
   "dependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/ws": "^8.5.13",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
-    "ts-node": "^10.9.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/ws": "^8.5.13",
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.3",
     "nodemon": "^3.1.7",
