@@ -7,7 +7,7 @@
   "scripts": {
     "start:dev": "npx nodemon",
     "dev": "npx tsc --noEmit && node --loader ts-node/esm src/index.ts",
-    "build": "rimraf ./build && tsc",
+    "build": "rimraf ./build && tsc src/index.ts",
     "start": "npm run build && node build/index.ts"
   },
   "author": "lluis",

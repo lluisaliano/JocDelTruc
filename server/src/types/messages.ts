@@ -1,4 +1,4 @@
-import { cardId, CardsOfPlayer, GameState, Player } from "./game";
+import { cardId, GameState, Player } from "./game";
 
 // RECIEVED MESSAGES
 //TODO Change data propery to its possible types...

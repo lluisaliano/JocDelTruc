@@ -335,7 +335,8 @@ trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[3])!.cards[0].id
 );
 
-console.log(trucMatch.getState());
+console.log(trucMatch.getState().trucWonLaps);
+console.log(trucMatch.getState().currentTurn);
 
 // TODO SOMETIMES ACCESSING TO A CARD IN THIS LAP FAILED
 // LAP 2
@@ -351,7 +352,8 @@ trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
 currentTurnPlayer = trucMatch.getState().currentTurn;
 trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
 
-console.log(trucMatch.getState());
+console.log(trucMatch.getState().trucWonLaps);
+console.log(trucMatch.getState().currentTurn);
 
 // LAP 3
 
@@ -366,3 +368,6 @@ trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
 
 currentTurnPlayer = trucMatch.getState().currentTurn;
 trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
+
+console.log(trucMatch.getState().trucWonLaps);
+console.log(trucMatch.getState().currentTurn);

@@ -49,6 +49,11 @@ export class Queue {
     if (!node) {
       return null;
     }
+    // If we get the last player, clean the last player reference
+    if (this.first === this.last) {
+      this.last = null;
+    }
+
     this.first = node.next;
 
     return node.player;
@@ -76,7 +81,11 @@ export class Queue {
     return -1;
   }
 
-  getFirstPlayerPosFromArrayOfPlayers(players: Players) {
+  // TODO Improve this
+  getFirstPlayerOrPlayerPosFromArrayOfPlayers(
+    players: Players,
+    getPlayer: boolean
+  ) {
     interface AuxInterface {
       player: null | Player;
       pos: number;
@@ -91,7 +100,7 @@ export class Queue {
         firstPlayer = { player: player, pos: currentPos };
       }
     }
-    return firstPlayer.pos;
+    return getPlayer ? firstPlayer.player : firstPlayer.pos;
   }
 
   protected getLastNode() {

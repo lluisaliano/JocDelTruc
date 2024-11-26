@@ -10,6 +10,10 @@ import {
   TrucState,
   EnvitState,
   cardId,
+  Card,
+  Team,
+  roundState,
+  TieAndMaPlayer,
 } from "../types/game";
 import { randomInteger } from "../utils/functions.ts";
 
@@ -66,8 +70,8 @@ export class TrucMatch {
   private players: Players = [];
 
   // Teams tuples
-  private team1: [Player, Player];
-  private team2: [Player, Player];
+  private team1: Team;
+  private team2: Team;
 
   // Game State
   // This two states change when envit or truc is confirmed
@@ -75,10 +79,10 @@ export class TrucMatch {
 
   private envitState: EnvitState = "none";
 
-  private lap: 1 | 2 | 3 = 1;
+  private lap: number = 1;
 
   // This array will contain the team which has won the rounds
-  private trucWonLaps: ([Player, Player] | typeof this.TIE)[] = [];
+  private trucWonLaps: (Team | typeof this.TIE)[] = [];
 
   // Define turnsWith with a Queue
   private turnQueue: Queue;
@@ -149,6 +153,17 @@ export class TrucMatch {
     // Assign them shuffled cards
     this.shuffleCards();
 
+    // TODO CHANGE CARDS FOR TESTING, THIS SHOULD BE REMOVED
+    const firstRoundCards: Card[] = [
+      { id: "dos_copes", trucValue: 6, envitValue: 2, palo: "copes" },
+      { id: "tres_espasses", trucValue: 7, envitValue: 3, palo: "espasses" },
+      { id: "tres_bastos", trucValue: 7, envitValue: 3, palo: "bastos" },
+      { id: "tres_oros", trucValue: 7, envitValue: 3, palo: "oros" },
+    ];
+    this.players.forEach((player, i) => {
+      player.cards[0] = firstRoundCards[i];
+    });
+
     // Assign envit to players
     this.assignEnvitToPlayers();
 
@@ -192,6 +207,7 @@ export class TrucMatch {
       envitState: this.envitState,
       lap: this.lap,
       maPlayer: this.roundMaPlayer,
+      trucWonLaps: this.trucWonLaps,
     };
     return status;
   }
@@ -210,6 +226,10 @@ export class TrucMatch {
           // Change envit status to what corresponds
           // IF envit status is not none, ask other players for renvit
           // and do the same logic than before
+          /**
+           * If envit is called and there is an envit Status different than none,
+           * it means the player is calling for a renvit, val 6... so we change that
+           */
         }
         break;
       case "acceptEnvit":
@@ -236,6 +256,7 @@ export class TrucMatch {
        * send a message to other team players that this team has abandoned
        * give corresponding points depending on envit winner ( which depends on envit status)
        * give corresponding points depending on truc status to other team
+       * WE WILL HAVE TO MODIFY SETNEXTLAP PROBABLY AND UPDATENVIT...
        */
     }
   }
@@ -265,20 +286,30 @@ export class TrucMatch {
 
     // set next current turn
     // If the lap is over, next turn player will be null, so we must start next lap
+    let isMatchOver;
     if (!this.setNextCurrentTurn()) {
-      // If startNextLap return null, it means we have to start next round because we have ended lap 3
-      // We have to handle score updates here
-      if (!this.startNextLap(this.getLapTrucWinnerPlayer(this.lap))) {
+      /**
+       * If startNextLap returns CURRENT_ROUND_IS_NOT_FINISHED,
+       * the round is not finished, if it returns normal, there has not been any special case,
+       * otherwise, an special case has been triggered
+       */
+      const roundState = this.startNextLap(
+        this.updateLapTrucWinnerTeam(this.lap)
+      );
+      if (roundState !== "CURRENT_ROUND_IS_NOT_FINISHED") {
+        // Update Score
+        this.updateMatchScore(roundState);
+
         // Before starting a new round, we must check if a team has won
         // If a team has won, return that team
-        const matchOver = this.isMatchOver();
-        if (matchOver) {
-          return matchOver;
-        }
+        isMatchOver = this.isMatchOver();
 
-        this.startNextRound();
+        this.startNextRound(); // HERE IT IS RETURNED IF MATCH IS OVER
       }
     }
+
+    if (isMatchOver) {
+    } // TODO NOTIFY PLAYERS OF TEAM VICTORY
 
     //TODO HERE WE SHOULD RETURN IF THE ROUND IS OVER AND UPDATE EVERYING AND SEND IT TO THE CLIENT
   }
@@ -307,33 +338,60 @@ export class TrucMatch {
     return player.thrownCards[lap - 1];
   }
 
+  // TODO THIS SHOULD HANDLE SPECIAL CASES, DESCRIBED IN updateMatchScore, like if tie in first round return null
   /**
    * Start next lap, if lap 3 has ended, we must start a new round, so this method will return null and playerPlay
    * will handle it
+   *
+   * TRUC SPECIAL CASES
+   * first lap tie -> second lap biggest card wins -> tie again (in second lap) -> hiddenCard biggest card wins -> tie again
+   * -> user who is 'mà'(the player who throws first card) wins
+   * (user should be able to select the cards)
+   *
+   * first lap win -> second lap tie -> wins team who won first lap
+   *
+   *
+   * (NOT HANDLED BY THIS METHOD)
+   * first lap win -> second lap lost -> third lap tie -> wins team who won first lap
+   * tie on the 3 laps -> wins team which has the player who is 'mà'(the player who throws first card)
    * @param winnerPlayer
    */
-  private startNextLap(winner: Player | typeof this.TIE) {
-    this.lap += 1;
-    if (this.lap === 4) {
-      // If we end lap 3, we must start new round, so this method will return null and playerPlay will handle it
-      return null;
-    } else {
-      // TODO This is probably not okay but i am not sure. If there is a tie, the player who started the round before should throw the card
-      // If there is a TIE, 'mà' player will start the next lap
-      if (winner === this.TIE) {
-        this.turnQueue = new Queue(
-          this.players,
-          this.players.findIndex((p) => p === this.roundMaPlayer)
-        );
-      } else {
-        this.turnQueue = new Queue(
-          this.players,
-          this.players.findIndex((p) => p === winner)
-        );
-      }
-
-      return this.turnQueue;
+  private startNextLap(winner: TieAndMaPlayer): roundState {
+    // IF LAP COUNTER IS 3, THE ROUND HAS FINISHED NORMALLY
+    if (this.lap === 3) {
+      return "NORMAL";
     }
+
+    // IF FIRST LAP IS TIED, WE HAVE TWO SPECIAL CASES (IF WE ENTER HERE, WE ARE ON LAP 2)
+    if (this.trucWonLaps[0] === this.TIE) {
+      // SPECIAL CASE 1 -> A TEAM WON THE SECOND LAP AFTER A TIE ON FIRST, SO THE ROUND IS OVER
+      if (!winner.tie) {
+        return "FIRST_LAP_TIE";
+      } else {
+        // SPECIAL CASE 2 --> IF THERE IS A TIE ON SECOND LAP, THERE MUST BE PLAYED A THIRD LAP
+        // IF THIRD LAP HAS NOT BEEN PLAYED YET, WE WILL LET IT BE PLAYED
+        if (this.lap === 3) {
+          // IF THIRD LAP HAS BEEN PLAYED, WE RETURN THE SPECIAL CASE ROUNDTYPE
+          return "FIRST_LAP_TIE_AND_SECOND_LAP_TIE";
+        }
+      }
+    }
+
+    // SPECIAL CASE 3 --> IF FIRST LAP IS WON BY A TEAM(NOT A TIE) BUT SECOND IS A TIE
+    if (this.lap === 2 && winner.tie && this.trucWonLaps[0] !== this.TIE) {
+      return "SECOND_LAP_TIE";
+    }
+
+    // IF NO SPECIAL CASES OR THE ROUND IS NOT FINISHED (LAP === 3), THE WINNER PLAYER WILL START NEXT LAP
+    // IF PLAYERS TIED ON THE FIRST ROUND, THE WINNER PLAYER WILL BE THE MA PLAYER, WHO WILL FIRST THROW ON NEXT LAP
+    this.turnQueue = new Queue(
+      this.players,
+      this.players.findIndex((p) => p === winner.player)
+    );
+
+    // INCREASE LAP COUNTER
+    this.lap += 1;
+    return "CURRENT_ROUND_IS_NOT_FINISHED";
   }
 
   private startNextRound() {
@@ -364,8 +422,6 @@ export class TrucMatch {
     //TODO MAYBE THIS METHOD SHOULD BE CALLED AND PLAYERPLAY AND NOT ON PLAYNEXTROUND
   }
 
-  private updateRoundScore() {}
-
   // TODO Handle Special Cases and describe functionallity better
   /**
    * This method will update match score
@@ -373,40 +429,100 @@ export class TrucMatch {
    * but it will not handle round logic and special cases
    *
    * TRUC
-   * first lap tie -> second lap biggest card wins -> tie again -> hiddenCard biggest card wins -> tie again
-   * -> user who is 'mà'(the player who throws first card) wins
-   * (user should be able to select the cards)
-   *
-   * first lap win -> secound lap lost -> third lap tie -> wins team who won first lap
+   * SPECIAL CASE 1: first lap tie -> second lap biggest card wins ->
+   * SPECIAL CASE 2: tie again -> hiddenCard biggest card wins ->
+   * SPECIAL CASE 3: tie again -> user who is 'mà'(the player who throws first card) wins
+   * SPECIAL CASE 4: first lap won -> second lap won
    *
    * first lap win -> second round tie -> wins team who won first lap
    *
-   * tie on the 3 laps -> wins team which has the player who is 'mà'(the player who throws first card)
+   * If a team wins two laps in a row, round is finished with just two laps
+   *
+   *
+   * SPECIAL CASE 5: first lap win -> secound lap lost -> third lap tie -> wins team who won first lap
+   * SPECIAL CASE 6: tie on the 3 laps -> wins team which has the player who is 'mà'(the player who threw the first card
+   * on the round)
    *
    * ENVIT
    * envit tie between two players -> wins player who is mà(the player who threw the its first card first)
    * We should handle a triple tie(wins the player who is ma over the rest)
    * and a quad tie (wins the player who is ma, who threw the first card),
    */
-  private updateMatchScore() {
+  private updateMatchScore(roundState: roundState) {
     // GET TRUC WINNER
-
-    // Get winned laps per team
-    const cardWinnedLapsTeam1 = this.trucWonLaps.filter(
-      (team) => this.team1 === team
-    ).length;
-
-    const cardWinnedLapsTeam2 = this.trucWonLaps.filter(
-      (team) => this.team2 === team
-    ).length;
-
-    let trucWinnerTeam = this.team1;
-    if (cardWinnedLapsTeam1 < cardWinnedLapsTeam2) {
-      trucWinnerTeam = this.team2;
+    // This variable will have the trucPoints to give
+    const trucPoints: number = this.trucScore[this.trucState];
+    // This variable will have the winnerTeam
+    let winnerTeam: Team | null = null;
+    /**
+     * SPECIAL CASE 1
+     * We just need to check the winner of the trucWinner of the second lap
+     */
+    if (roundState === "FIRST_LAP_TIE") {
+      winnerTeam = this.trucWonLaps[1] as Team; // If we are here, we will always have a team not a tie
     }
 
-    // Update truc score
-    if (trucWinnerTeam === this.team1) {
+    /**
+     * SPECIAL CASE 2
+     * In this case, we will only check the winner of the third lap
+     */
+    if (roundState === "FIRST_LAP_TIE_AND_SECOND_LAP_TIE") {
+      winnerTeam = this.trucWonLaps[2] as Team; // If we are here, we will always have a team not a tie
+    }
+
+    /**
+     * SPECIAL CASE 3 AND SPECIAL CASE 4
+     * To get the winner, we will check the winner of the first lap for SPECIAL CASE 3
+     * To get the winner for SPECIA CASE 4, we have to do the same (we could also check winner of second round)
+     */
+    if (
+      roundState === "SECOND_LAP_TIE" ||
+      roundState === "TEAM_WON_TWO_LAPS_IN_A_ROW"
+    ) {
+      winnerTeam = this.trucWonLaps[0] as Team; // If we are here, we will always have a team not a tie
+    }
+
+    // "NORMAL" roundState - When 3 laps have been completed
+    if (roundState === "NORMAL") {
+      // Get won laps per team
+      const cardWinnedLapsTeam1 = this.trucWonLaps.filter(
+        (team) => this.team1 === team
+      ).length;
+
+      const cardWinnedLapsTeam2 = this.trucWonLaps.filter(
+        (team) => this.team2 === team
+      ).length;
+
+      if (cardWinnedLapsTeam1 > cardWinnedLapsTeam2) {
+        winnerTeam = this.team1;
+      } else if (cardWinnedLapsTeam1 < cardWinnedLapsTeam2) {
+        winnerTeam = this.team2;
+      } else {
+        /**
+         * SPECIAL CASE 5: If cardWinnedLaps of one of each team is bigger than 0,
+         * we have to check if the third lap has a tie. If it has, the winner will be the team which won the first lap
+         * In this case, there will always be a tie on the third lap, otherwise, we would not be inside this condition.
+         */
+        if (cardWinnedLapsTeam1 > 0) {
+          winnerTeam = this.trucWonLaps[0] as Team;
+        } else {
+          /**
+           * SPECIAL CASE 6: If cardWinnedLaps of one of each team is 0, we will be in this case.
+           * The winner team will be the team of the player who is 'mà'
+           * If we are in this condition, we just need to return the team of the player who is 'mà',
+           * because if the cardWinnedLaps of both teams is different than 0, we would be on another condition
+           */
+          winnerTeam = this.getPlayerTeam(this.roundMaPlayer);
+        }
+      }
+    }
+
+    // If there is not a winnerTeam, we will have an error, because a team should be assigned always
+    if (!winnerTeam)
+      throw new Error("THERE IS NO WINNER TEAM TO UPDATE MATCH SCORE");
+
+    // Finally, we update matchScore
+    if (winnerTeam === this.team1) {
       this.score.team1 = this.score.team1 + this.trucScore[this.trucState];
     } else {
       this.score.team2 = this.score.team2 + this.trucScore[this.trucState];
@@ -419,53 +535,53 @@ export class TrucMatch {
   }
 
   /**
-   * Get winner team on a lap and assign it to this.trucWonLaps, if there is a tie, we will push tie constant
+   * update truc winner team on a lap and assign it to this.trucWonLaps, if there is a tie, we will push tie constant
    * TODO This has to handle tie in first lap, and ties in other laps
    * @param lap
-   * @returns
+   * @returns The player who won the round
    */
-  private getLapTrucWinnerPlayer(lap: typeof this.lap) {
+  private updateLapTrucWinnerTeam(lap: typeof this.lap) {
     interface ThrownCardAndPlayer {
       thrownCardValue: number;
       player: Player;
     }
-    let winner: Player | typeof this.TIE;
 
-    // We get an array of all the thrown cards in this lap
-    let thrownCardsAndPlayers: ThrownCardAndPlayer[] = [];
-    for (let player of this.players) {
-      let playerThrownCard = this.getPlayerThrownCardInLap(player, lap);
-
-      thrownCardsAndPlayers.push({
-        thrownCardValue: playerThrownCard?.trucValue,
-        player: player,
-      });
-    }
+    let winner: TieAndMaPlayer;
 
     // In case we only have one player, we assign him as winner
-    if (this.players.length === 1) winner = this.players[0];
+    if (this.players.length === 1) {
+      winner = { tie: false, player: this.players[0] };
+    }
 
-    // To know who has won, or if there is a tie, we will sort the array based on the thrown card value
-    thrownCardsAndPlayers.sort((a, b) => {
-      return a.thrownCardValue - b.thrownCardValue;
-    });
+    let team1PlayerAndCard = this.getTeamBestTrucPlayerAndCardOnLap(
+      this.team1,
+      lap
+    );
+    let team2PlayerAndCard = this.getTeamBestTrucPlayerAndCardOnLap(
+      this.team2,
+      lap
+    );
 
-    // Check if there is a tie by checking if the biggest two cards, first and second, are equal.
-    // If there is no tie, we will have the lap winner player
-    if (
-      thrownCardsAndPlayers[0].thrownCardValue ===
-      thrownCardsAndPlayers[1].thrownCardValue
-    ) {
-      winner = this.TIE;
+    // Check which team is winning or if there is a tie
+    if (team1PlayerAndCard.cardValue === team2PlayerAndCard.cardValue) {
+      // If we have a tie, we will return ma player between tied players with better 'ma' situation
+      const maPlayer =
+        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
+          [team1PlayerAndCard.player, team2PlayerAndCard.player],
+          true
+        ) as Player;
+      winner = { tie: true, player: maPlayer };
+    } else if (team1PlayerAndCard.cardValue > team2PlayerAndCard.cardValue) {
+      winner = { tie: false, player: team1PlayerAndCard.player };
     } else {
-      winner = thrownCardsAndPlayers[0].player;
+      winner = { tie: false, player: team1PlayerAndCard.player };
     }
 
     // Assign the team that won the round or if there was a tie to won rounds array
-    if (winner === this.TIE) {
+    if (winner.tie) {
       this.trucWonLaps[lap - 1] = this.TIE;
     } else {
-      this.trucWonLaps[lap - 1] = this.getPlayerTeam(winner);
+      this.trucWonLaps[lap - 1] = this.getPlayerTeam(winner.player);
     }
 
     // Return the winner
@@ -658,6 +774,7 @@ export class TrucMatch {
     return this.players.findIndex((p) => p === player);
   }
 
+  //TODO THERE IS CODE THAT REPEATS HERE, WE COUD CALL THE CODE ONCE FOR TEAM
   /**
    * This method encapsulates the updating of the envit score functionality
    * It is used inside updateMatchScore method
@@ -667,6 +784,11 @@ export class TrucMatch {
       value: number;
       players: Players;
       maPos: number;
+    }
+
+    // If there has not been envit
+    if (this.envitState === "none") {
+      return;
     }
 
     let team1EnvitAndTies: EnvitAndTies = {
@@ -687,9 +809,10 @@ export class TrucMatch {
     // Check if there has been tie, get the 'ma' position of the player who is 'ma'
     if (team1EnvitAndTies.players.length > 1) {
       team1EnvitAndTies.maPos =
-        this.roundInfiniteQueue.getFirstPlayerPosFromArrayOfPlayers(
-          team1EnvitAndTies.players
-        );
+        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
+          team1EnvitAndTies.players,
+          false
+        ) as number;
     }
 
     let team2EnvitAndTies: EnvitAndTies = {
@@ -697,7 +820,7 @@ export class TrucMatch {
       players: [],
       maPos: Number.MAX_SAFE_INTEGER,
     };
-    for (const player of this.team1) {
+    for (const player of this.team2) {
       if (player.envit > team2EnvitAndTies.value) {
         team2EnvitAndTies.value = player.envit;
         // If a player wins, we clean the players array and push the player who has won
@@ -710,23 +833,90 @@ export class TrucMatch {
     // Check if there has been a tie, get the 'ma' position of the player who is 'ma'
     if (team2EnvitAndTies.players.length > 1) {
       team2EnvitAndTies.maPos =
-        this.roundInfiniteQueue.getFirstPlayerPosFromArrayOfPlayers(
-          team2EnvitAndTies.players
-        );
+        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
+          team2EnvitAndTies.players,
+          false
+        ) as number;
     }
-
+    // TODO THIS LOGIC HAS TO BE IMPROVED
     // Update envit points to winnerTeam
     if (team1EnvitAndTies.value > team2EnvitAndTies.value) {
-      this.score.team1 += this.envitScore[this.envitState];
-    } else if (team1EnvitAndTies.value < team2EnvitAndTies.value) {
-      this.score.team2 += this.envitScore[this.envitState];
-    } else {
-      // If both teams tie envit, the team who is 'ma' wins
-      if (team1EnvitAndTies.maPos < team2EnvitAndTies.maPos) {
+      // If we have falta envit, team1 won the match, so we give them max points
+      if (this.envitState === "falta_envit") {
+        this.score.team1 = this.WIN_SCORE;
+      } else {
         this.score.team1 += this.envitScore[this.envitState];
+      }
+    } else if (team1EnvitAndTies.value < team2EnvitAndTies.value) {
+      // If we have falta envit, team1 won the match, so we give them max points
+      if (this.envitState === "falta_envit") {
+        this.score.team2 = this.WIN_SCORE;
       } else {
         this.score.team2 += this.envitScore[this.envitState];
       }
+    } else {
+      // If both teams tie envit, the team who is 'ma' wins
+      if (team1EnvitAndTies.maPos < team2EnvitAndTies.maPos) {
+        // If we have falta envit, team1 won the match, so we give them max points
+        if (this.envitState === "falta_envit") {
+          this.score.team1 = this.WIN_SCORE;
+        } else {
+          this.score.team1 += this.envitScore[this.envitState];
+        }
+      } else {
+        if (this.envitState === "falta_envit") {
+          this.score.team2 = this.WIN_SCORE;
+        } else {
+          this.score.team2 += this.envitScore[this.envitState];
+        }
+      }
     }
+  }
+
+  private getTeamBestTrucPlayerAndCardOnLap(team: Team, lap: typeof this.lap) {
+    // We get an array of all the thrown cards in this lap
+    let teamTrucCardsAndPlayers = new Map<number, Players>();
+    for (let player of this.team1) {
+      let playerThrownCardValue = this.getPlayerThrownCardInLap(
+        player,
+        lap
+      ).trucValue;
+
+      const playersWithCardValue = teamTrucCardsAndPlayers.get(
+        playerThrownCardValue
+      );
+      if (!playersWithCardValue) {
+        teamTrucCardsAndPlayers.set(playerThrownCardValue, [player]);
+      } else {
+        playersWithCardValue.push(player);
+      }
+    }
+
+    const maxCardValueKey = Math.max(...teamTrucCardsAndPlayers.keys());
+
+    // This will not be undefined because we just got the key in the step before
+    const playersWithMaxCardValue =
+      teamTrucCardsAndPlayers.get(maxCardValueKey)!;
+
+    interface TeamBestTrucPlayerInterface {
+      player: Player;
+      cardValue: number;
+    }
+
+    let teamBestTrucPlayer = {} as TeamBestTrucPlayerInterface;
+    // If There is a tie on team, so we get the player who is ma
+    if (playersWithMaxCardValue.length > 1) {
+      teamBestTrucPlayer.player =
+        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
+          playersWithMaxCardValue,
+          true
+        ) as Player;
+    } else {
+      teamBestTrucPlayer.player = playersWithMaxCardValue[0];
+    }
+
+    teamBestTrucPlayer.cardValue = maxCardValueKey;
+
+    return teamBestTrucPlayer;
   }
 }

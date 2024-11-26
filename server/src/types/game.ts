@@ -68,6 +68,8 @@ export interface Player {
   envit: number;
 }
 
+export type Team = [Player, Player];
+
 export type Players = Player[];
 
 export interface Score {
@@ -89,6 +91,12 @@ export interface GameState {
   envitState: EnvitState;
   lap: 1 | 2 | 3;
   maPlayer: Player;
+  trucWonLaps: ([Player, Player] | "tie")[];
+}
+
+export interface TieAndMaPlayer {
+  tie: boolean;
+  player: Player;
 }
 
 export type CallType =
@@ -97,3 +105,25 @@ export type CallType =
   | "abandonar"
   | "acceptTruc"
   | "acceptEnvit";
+
+/**
+ * Define a type to notice updateMatchScore (inside startNextRound) from startNextLap if there is
+ * a truc special case or everything is normal
+ *
+ * TRUC SPECIAL CASES HANDLED BY startNextLap
+ * first lap tie -> second lap biggest card wins -> tie again (in second lap) -> hiddenCard biggest card wins -> tie again
+ * -> user who is 'mà'(the player who throws first card) wins
+ * (user should be able to select the cards)
+ *
+ * first lap win -> second lap tie -> wins team who won first lap
+ *
+ * If a team wins two laps in a row, round is finished with just two laps
+ *
+ */
+export type roundState =
+  | "CURRENT_ROUND_IS_NOT_FINISHED" // DO NOT START NEXT ROUND YET
+  | "NORMAL" // ROUND HAD NO SPECIAL CASES
+  | "FIRST_LAP_TIE" // SPECIAL CASE 1 THAT HAPPENS WHEN THERE IS A FIRST LAP TIE BUT NOT A SECOND LAP TIE
+  | "FIRST_LAP_TIE_AND_SECOND_LAP_TIE" // SPECIAL CASE 2 WHEN FIRST AND SECOND LAP ARE TIED
+  | "SECOND_LAP_TIE" // SEPCIAL CASE 3 THAT HAPPENS WHEN A TEAM WINS FIRST ROUND, BUT THE SECOND IS TIED
+  | "TEAM_WON_TWO_LAPS_IN_A_ROW"; // SPECIAL CASE  4 THAT HAPPENS WHEN A TEAM WON FIRST AND SECOND ROUND
