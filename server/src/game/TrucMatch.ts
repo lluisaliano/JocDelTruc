@@ -26,6 +26,8 @@ import { InfiniteQueue } from "../utils/InfiniteQueue";
  * This class represents a truc match
  * It will manage and keep all logic and states of the match.
  *
+ * Based on: https://injovemenorca.com/ca/Truc_menorqui/34773
+ *
  * To Acknowledge:
  * Currently it only supports 2 teams of 2 players each.
  * To add more players, they should be added on a team, a match will always have 2 teams
