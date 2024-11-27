@@ -319,11 +319,20 @@ trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[0])!,
   trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
 );
+
+trucMatch.playerCall(trucMatch.getPlayerFromUser(playersTest[0])!, "truc");
+
+trucMatch.playerCall(
+  trucMatch.getPlayerFromUser(playersTest[0])!,
+  "acceptTruc"
+);
+
 // PERE
 trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[1])!,
   trucMatch.getPlayerFromUser(playersTest[1])!.cards[0].id
 );
+
 // AGUS
 trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[2])!,

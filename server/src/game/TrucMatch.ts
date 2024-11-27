@@ -87,6 +87,12 @@ export class TrucMatch {
   private teamThatDidEnvit: Team | null = null;
   private teamThatDidTruc: Team | null = null;
 
+  // This handles if a team did not want envit
+  private isEnvitDeclined: boolean = false;
+
+  // We will use this to avoid a player to throw a card if the truc of envit has not been accepted
+  private hasToAcceptTrucOrEnvit: boolean = false;
+
   private lap: number = 1;
 
   // This array will contain the team which has won the rounds
@@ -129,6 +135,7 @@ export class TrucMatch {
   // Envit score object. Falta envit is null because it depends on how points the other team has missing to win the match
   private readonly envitScore: Record<EnvitState, number> = {
     none: 0,
+    not_accepted: 1,
     envit: 2,
     renvit: 4,
     val_6: 6,
@@ -225,6 +232,8 @@ export class TrucMatch {
   playerCall(player: Player, callType: CallType) {
     switch (callType) {
       case "envit":
+        //Change hasToAccpetTrucOrEnvit to true
+        this.hasToAcceptTrucOrEnvit = true;
         // If player has no turn and no one has said envit(envitState === 'none'), player cannot envit
         if (player !== this.currentTurn && this.envitState === "none") {
           throw new Error("PLAYER HAS NO TURN TO ENVIT");
@@ -265,13 +274,15 @@ export class TrucMatch {
         return this.askedEnvit;
 
       case "acceptEnvit":
-        // Only players of the team that did not envit will see this
-        if (this.getPlayerTeam(player) !== this.teamThatDidEnvit) {
-          throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT ENVIT");
-        }
         // If asked envit is null, there is nothing to be accepted
         if (this.askedEnvit === "none") {
           return null;
+        }
+        //Change hasToAccpetTrucOrEnvit to false because it has been accepted
+        this.hasToAcceptTrucOrEnvit = false;
+        // Only players of the team that did not envit will see this
+        if (this.getPlayerTeam(player) !== this.teamThatDidEnvit) {
+          throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT ENVIT");
         }
         /**
          * Assign askedEnvit to envitState and return envitState
@@ -280,7 +291,40 @@ export class TrucMatch {
 
         return this.envitState;
 
+      case "declineEnvit":
+        // If asked envit is null, there is nothing to be accepted
+        if (this.askedEnvit === "none") {
+          return null;
+        }
+        //Change hasToAccpetTrucOrEnvit to false because it has been accepted
+        this.hasToAcceptTrucOrEnvit = false;
+        // Change isEnvitDeclined to true
+        this.isEnvitDeclined = true;
+        // Only players of the team that did not envit will see this
+        if (this.getPlayerTeam(player) !== this.teamThatDidEnvit) {
+          throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT ENVIT");
+        }
+
+        switch (this.askedEnvit) {
+          case "envit":
+            this.envitState = "not_accepted"; // This equals to 1 point
+            break;
+          case "renvit":
+            this.envitState = "envit";
+            break;
+          case "val_6":
+            this.envitState = "renvit";
+            break;
+          case "falta_envit":
+            this.envitState = "val_6";
+            break;
+        }
+
+        return this.envitState;
+
       case "truc":
+        //Change hasToAccpetTrucOrEnvit to true
+        this.hasToAcceptTrucOrEnvit = true;
         // If player has no turn and no one has said truc(trucState === 'none'), player cannot truc
         if (player !== this.currentTurn && this.trucState === "none") {
           throw new Error("PLAYER HAS NO TURN TO TRUC");
@@ -320,6 +364,8 @@ export class TrucMatch {
         return this.trucState;
 
       case "acceptTruc":
+        //Change hasToAccpetTrucOrEnvit to false because it has been accepted
+        this.hasToAcceptTrucOrEnvit = false;
         // Only players of the team that did not truc will see this
         if (this.getPlayerTeam(player) !== this.teamThatDidTruc) {
           throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT TRUC");
@@ -337,8 +383,8 @@ export class TrucMatch {
         return this.envitState;
 
       case "abandonar":
-        // If player has no turn, he cannot abandon
-        if (player !== this.currentTurn) {
+        // If player has no turn or truc has not been asked, he cannot abandon
+        if (player !== this.currentTurn || this.askedTruc === "none") {
           throw new Error("PLAYER HAS NO TURN TO ABANDON");
         }
         /**
@@ -367,6 +413,10 @@ export class TrucMatch {
    * @returns
    */
   playerPlay(player: Player, cardId: cardId) {
+    if (this.hasToAcceptTrucOrEnvit) {
+      throw new Error("TO THROW TRUC OR ENVIT MUST BE ACCEPTED OR DECLAINED");
+    }
+
     let chosenCard = this.getPlayerCard(player, cardId);
     if (!chosenCard) {
       throw new Error("PLAYER DOES NOT HAVE THIS CARD");
@@ -888,6 +938,14 @@ export class TrucMatch {
 
     // If there has not been envit
     if (this.envitState === "none") {
+      return;
+    }
+
+    // If a team declined envit, assign score to team that ask it
+    if (this.isEnvitDeclined) {
+      // Get team that did envit
+      const team = this.teamThatDidEnvit === this.team1 ? "team1" : "team2";
+      this.score[team] += this.envitScore[this.envitState];
       return;
     }
 

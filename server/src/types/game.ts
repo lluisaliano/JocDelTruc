@@ -79,7 +79,13 @@ export interface Score {
 
 export type TrucState = "none" | "truc" | "retruc" | "val_9" | "cama";
 
-export type EnvitState = "none" | "envit" | "renvit" | "val_6" | "falta_envit";
+export type EnvitState =
+  | "none"
+  | "not_accepted"
+  | "envit"
+  | "renvit"
+  | "val_6"
+  | "falta_envit";
 
 export interface GameState {
   team1: [Player, Player];
@@ -102,9 +108,10 @@ export interface TieAndMaPlayer {
 export type CallType =
   | "truc"
   | "envit"
-  | "abandonar"
+  | "abandonar" // This is the equivalent of truc to declineEnvit
   | "acceptTruc"
-  | "acceptEnvit";
+  | "acceptEnvit"
+  | "declineEnvit";
 
 /**
  * Define a type to notice updateMatchScore (inside startNextRound) from startNextLap if there is
