@@ -1,4 +1,4 @@
-import { Player } from "./game";
+import { Player } from "./game.js";
 
 export type Node = {
   player: Player;

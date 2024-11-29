@@ -3,9 +3,9 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 
-import { Users } from "./types/game";
-import { AuthenticationData, RegisteredUsers } from "./types/api";
-import { TrucMatch } from "./game/TrucMatch";
+import { Users } from "./types/game.js";
+import { AuthenticationData, RegisteredUsers } from "./types/api.js";
+import { TrucMatch } from "./game/TrucMatch.js";
 import {
   ErrorResponse,
   Message,
@@ -311,20 +311,23 @@ wss.on("connection", (ws) => {
 });
 
 // We will test the trucMatch class here:
+
+//TODO CARDS ARE NOT BEING CHANGED FROM CARDS TO THROWED WELL,
+// MAYBE IS BECAUSE CURRENTTURN AND TURNQUEUE
 let playersTest = ["lluis", "pere", "agus", "bruno"];
 trucMatch = new TrucMatch(playersTest);
 // TODO, THE CONSTRUCTOR IS HARDCODED TO GIVE FIRST TURN TO LLUIS
+trucMatch.playerCall(trucMatch.getPlayerFromUser(playersTest[0])!, "truc");
+
+trucMatch.playerCall(
+  trucMatch.getPlayerFromUser(playersTest[1])!,
+  "acceptTruc"
+);
+
 // LLUIS
 trucMatch.playerPlay(
   trucMatch.getPlayerFromUser(playersTest[0])!,
   trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
-);
-
-trucMatch.playerCall(trucMatch.getPlayerFromUser(playersTest[0])!, "truc");
-
-trucMatch.playerCall(
-  trucMatch.getPlayerFromUser(playersTest[0])!,
-  "acceptTruc"
 );
 
 // PERE

@@ -1,4 +1,4 @@
-import { Cards } from "../types/game";
+import { Cards } from "../types/game.js";
 
 export const cards: Cards = [
   { id: "un_espasses", trucValue: 11, envitValue: 1, palo: "espasses" },

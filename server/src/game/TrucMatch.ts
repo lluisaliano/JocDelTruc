@@ -15,10 +15,10 @@ import {
   TieAndMaPlayer,
 } from "../types/game";
 
-import { cards } from "./cards";
-import { shuffleDeck } from "../utils/shuffleDeck";
-import { Queue } from "../utils/Queue";
-import { InfiniteQueue } from "../utils/InfiniteQueue";
+import { cards } from "./cards.js";
+import { shuffleDeck } from "../utils/shuffleDeck.js";
+import { Queue } from "../utils/Queue.js";
+import { InfiniteQueue } from "../utils/InfiniteQueue.js";
 
 /**
  * Description:
@@ -274,16 +274,19 @@ export class TrucMatch {
         return this.askedEnvit;
 
       case "acceptEnvit":
+        // Only players of the team that did not envit will see this
+        if (this.getPlayerTeam(player) === this.teamThatDidEnvit) {
+          throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT ENVIT");
+        }
+
         // If asked envit is null, there is nothing to be accepted
         if (this.askedEnvit === "none") {
           return null;
         }
+
         //Change hasToAccpetTrucOrEnvit to false because it has been accepted
         this.hasToAcceptTrucOrEnvit = false;
-        // Only players of the team that did not envit will see this
-        if (this.getPlayerTeam(player) !== this.teamThatDidEnvit) {
-          throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT ENVIT");
-        }
+
         /**
          * Assign askedEnvit to envitState and return envitState
          */
@@ -364,23 +367,24 @@ export class TrucMatch {
         return this.trucState;
 
       case "acceptTruc":
-        //Change hasToAccpetTrucOrEnvit to false because it has been accepted
-        this.hasToAcceptTrucOrEnvit = false;
         // Only players of the team that did not truc will see this
-        if (this.getPlayerTeam(player) !== this.teamThatDidTruc) {
+        if (this.getPlayerTeam(player) === this.teamThatDidTruc) {
           throw new Error("ONLY OTHER TEAM PLAYERS CAN ACCEPT TRUC");
         }
-
         // If asked envit is null, there is nothing to be accepted
         if (this.askedTruc === "none") {
           return null;
         }
-        /**
-         * Assign askedEnvit to envitState and return envitState
-         */
-        this.envitState = this.askedEnvit;
 
-        return this.envitState;
+        //Change hasToAccpetTrucOrEnvit to false because it has been accepted
+        this.hasToAcceptTrucOrEnvit = false;
+
+        /**
+         * Assign askedTruc to trucState and return trucState
+         */
+        this.trucState = this.askedTruc;
+
+        return this.trucState;
 
       case "abandonar":
         // If player has no turn or truc has not been asked, he cannot abandon
@@ -432,6 +436,7 @@ export class TrucMatch {
     player.thrownCards.push(chosenCard);
 
     // set next current turn
+    //TODO CHEKC GAME LOGIC
     // If the lap is over, next turn player will be null, so we must start next lap
     if (!this.setNextCurrentTurn()) {
       /**
@@ -496,6 +501,7 @@ export class TrucMatch {
    * tie on the 3 laps -> wins team which has the player who is 'mà'(the player who throws first card)
    * @param winnerPlayer
    */
+  // TODO THIS MUST BE IMPROVED
   private startNextLap(winner: TieAndMaPlayer): roundState {
     // IF LAP COUNTER IS 3, THE ROUND HAS FINISHED NORMALLY
     if (this.lap === 3) {
@@ -522,12 +528,13 @@ export class TrucMatch {
       return "SECOND_LAP_TIE";
     }
 
-    // IF NO SPECIAL CASES OR THE ROUND IS NOT FINISHED (LAP === 3), THE WINNER PLAYER WILL START NEXT LAP
+    // IF NO SPECIAL CASES OR THE ROUND IS NOT FINISHED (LAP !== 3), THE WINNER PLAYER WILL START NEXT LAP
     // IF PLAYERS TIED ON THE FIRST ROUND, THE WINNER PLAYER WILL BE THE MA PLAYER, WHO WILL FIRST THROW ON NEXT LAP
-    this.turnQueue = new Queue(
+    //todo this should be changed?
+    /**this.turnQueue = new Queue(
       this.players,
       this.players.findIndex((p) => p === winner.player)
-    );
+    );**/
 
     // INCREASE LAP COUNTER
     this.lap += 1;
@@ -714,12 +721,8 @@ export class TrucMatch {
 
     // Check which team is winning or if there is a tie
     if (team1PlayerAndCard.cardValue === team2PlayerAndCard.cardValue) {
-      // If we have a tie, we will return ma player between tied players with better 'ma' situation
-      const maPlayer =
-        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
-          [team1PlayerAndCard.player, team2PlayerAndCard.player],
-          true
-        ) as Player;
+      // If we have a tie, we will return ma player, because he will be next to trhwo
+      const maPlayer = this.roundMaPlayer;
       winner = { tie: true, player: maPlayer };
     } else if (team1PlayerAndCard.cardValue > team2PlayerAndCard.cardValue) {
       winner = { tie: false, player: team1PlayerAndCard.player };
