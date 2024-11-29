@@ -1,0 +1,9 @@
+- Unifiy types with server project
+- Standarize websocket messages
+- Create component and page view to get / create truc matches
+- Improve game CSS
+- Implement all the truc logic states and its styles/animations
+- Refactor some code
+- Create good documentation
+- Add truc/envid/son buenas sounds
+- Create the leaderboard page

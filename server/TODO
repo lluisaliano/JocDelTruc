@@ -1,0 +1,8 @@
+- Refactor Code and Folders
+- Unifiy Types with client project
+- Optimize some TrucMatch Algorithms
+- Standarize websocket messages
+- Create tests for TrucMatch with JEST (and test it)
+- Finish index.ts
+- Create/Improve Documentation
+- Create match API route with post and get methods to create/get all matches
