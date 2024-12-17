@@ -13,12 +13,12 @@ import {
   Team,
   roundState,
   TieAndMaPlayer,
-} from "../types/game";
+} from "../types/game.ts";
 
-import { cards } from "./cards.js";
-import { shuffleDeck } from "../utils/shuffleDeck.js";
-import { Queue } from "../utils/Queue.js";
-import { InfiniteQueue } from "../utils/InfiniteQueue.js";
+import { cards } from "./cards.ts";
+import { shuffleDeck } from "../utils/shuffleDeck.ts";
+import { Queue } from "../utils/Queue.ts";
+import { InfiniteQueue } from "../utils/InfiniteQueue.ts";
 
 /**
  * Description:

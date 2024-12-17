@@ -1,5 +1,5 @@
-import { Player, Players } from "../types/game.js";
-import { Queue } from "./Queue.js";
+import { Player, Players } from "../types/game.ts";
+import { Queue } from "./Queue.ts";
 
 //TODO This class types should be improved,
 // a lot of asserts used because the queue is infinite and wont have null values

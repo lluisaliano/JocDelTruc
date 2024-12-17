@@ -1,4 +1,4 @@
-import { Player } from "./game.js";
+import { Player } from "./game.ts";
 
 export type Node = {
   player: Player;

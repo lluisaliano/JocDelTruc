@@ -1,0 +1,13 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "jsc": {
+    "baseUrl": "./src",
+    "parser": {
+      "syntax": "typescript"
+    },
+    "target": "esnext"
+  },
+  "module": {
+    "type": "nodenext"
+  }
+}

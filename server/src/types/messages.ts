@@ -1,4 +1,4 @@
-import { cardId, GameState, Player } from "./game.js";
+import { cardId, GameState, Player } from "./game.ts";
 
 // RECIEVED MESSAGES
 //TODO Change data propery to its possible types...

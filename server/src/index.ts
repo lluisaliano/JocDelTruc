@@ -3,9 +3,9 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
 
-import { Users } from "./types/game.js";
-import { AuthenticationData, RegisteredUsers } from "./types/api.js";
-import { TrucMatch } from "./game/TrucMatch.js";
+import { Users } from "./types/game.ts";
+import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
+import { TrucMatch } from "./game/TrucMatch.ts";
 import {
   ErrorResponse,
   Message,
@@ -14,7 +14,7 @@ import {
   ResponseMessage,
   StartGameResponse,
   StateResponse,
-} from "./types/messages";
+} from "./types/messages.ts";
 
 const app = express();
 
@@ -309,77 +309,3 @@ wss.on("connection", (ws) => {
     }
   });
 });
-
-// We will test the trucMatch class here:
-
-//TODO CARDS ARE NOT BEING CHANGED FROM CARDS TO THROWED WELL,
-// MAYBE IS BECAUSE CURRENTTURN AND TURNQUEUE
-let playersTest = ["lluis", "pere", "agus", "bruno"];
-trucMatch = new TrucMatch(playersTest);
-// TODO, THE CONSTRUCTOR IS HARDCODED TO GIVE FIRST TURN TO LLUIS
-trucMatch.playerCall(trucMatch.getPlayerFromUser(playersTest[0])!, "truc");
-
-trucMatch.playerCall(
-  trucMatch.getPlayerFromUser(playersTest[1])!,
-  "acceptTruc"
-);
-
-// LLUIS
-trucMatch.playerPlay(
-  trucMatch.getPlayerFromUser(playersTest[0])!,
-  trucMatch.getPlayerFromUser(playersTest[0])!.cards[0].id
-);
-
-// PERE
-trucMatch.playerPlay(
-  trucMatch.getPlayerFromUser(playersTest[1])!,
-  trucMatch.getPlayerFromUser(playersTest[1])!.cards[0].id
-);
-
-// AGUS
-trucMatch.playerPlay(
-  trucMatch.getPlayerFromUser(playersTest[2])!,
-  trucMatch.getPlayerFromUser(playersTest[2])!.cards[0].id
-);
-// BRUNO
-trucMatch.playerPlay(
-  trucMatch.getPlayerFromUser(playersTest[3])!,
-  trucMatch.getPlayerFromUser(playersTest[3])!.cards[0].id
-);
-
-console.log(trucMatch.getState().trucWonLaps);
-console.log(trucMatch.getState().currentTurn);
-
-// TODO SOMETIMES ACCESSING TO A CARD IN THIS LAP FAILED
-// LAP 2
-let currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-console.log(trucMatch.getState().trucWonLaps);
-console.log(trucMatch.getState().currentTurn);
-
-// LAP 3
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-currentTurnPlayer = trucMatch.getState().currentTurn;
-trucMatch.playerPlay(currentTurnPlayer, currentTurnPlayer.cards[0].id);
-
-console.log(trucMatch.getState().trucWonLaps);
-console.log(trucMatch.getState().currentTurn);
