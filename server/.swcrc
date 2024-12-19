@@ -1,11 +1,24 @@
 {
-  "$schema": "https://swc.rs/schema.json",
   "jsc": {
-    "baseUrl": "./src",
     "parser": {
-      "syntax": "typescript"
+      "syntax": "typescript",
+      "topLevelAwait": true
     },
-    "target": "esnext"
+    "target": "esnext",
+    "baseUrl": "./",
+    "experimental": {
+      "plugins": [
+        [
+          "@swc/plugin-transform-imports",
+          {
+            "^(.*?)(\\.ts)$": {
+              "skipDefaultConversion": true,
+              "transform": "{{matches.[1]}}.js"
+            }
+          }
+        ]
+      ]
+    }
   },
   "module": {
     "type": "nodenext"

@@ -22,16 +22,26 @@ describe("Truc Match Class Tests", () => {
   ];
 
   // Throw first card
-  trucMatch.playerPlay(lluis, lluis.cards[0].id);
+  trucMatch.playerPlay(lluis, lluis.cards[2].id);
 
-  test("First Throw from Lluis", () => {
-    expect(trucMatch.getState().players[0].thrownCards[0].id).toBe("set_copes");
+  test("First Lluis Throw, card must be 'amo' and playerCards must be 'madona' and 'set_copes'", () => {
+    expect(trucMatch.getState().players[0].thrownCards[0].id).toBe("amo");
     expect(
       trucMatch
         .getState()
         .players[0].cards.every(
-          (card) => card.id === "madona" || card.id === "amo"
+          (card) => card.id === "madona" || card.id === "set_copes"
         )
     ).toBe(true);
+  });
+
+  trucMatch.playerPlay(pere, pere.cards[0].id);
+  trucMatch.playerPlay(agus, agus.cards[0].id);
+  trucMatch.playerPlay(bruno, bruno.cards[0].id);
+
+  test("FirstRoundWinLluis - Winner team bust be 1", () => {
+    expect(trucMatch.getState().trucWonLaps[0]).toBe(
+      trucMatch.getState().team1
+    );
   });
 });
