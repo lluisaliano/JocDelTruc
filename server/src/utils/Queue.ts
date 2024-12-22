@@ -37,9 +37,9 @@ export class Queue {
         break;
       }
 
-      // If players gets to last position wihtout having visted all players, we start from 0
+      // If players gets to last position wihtout having visted all players, we start from -1 (On next iteration it will be added 1)
       if (i === players.length - 1) {
-        i = 0;
+        i = -1;
       }
     }
   }
