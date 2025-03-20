@@ -1,3 +1,4 @@
+import { test, expect, describe } from "@jest/globals";
 import { TrucMatch } from "../game/TrucMatch.ts";
 
 describe("Truc Match Class Tests", () => {
@@ -63,4 +64,5 @@ describe("Truc Match Class Tests", () => {
 
     expect(state.currentTurn).toBe(pere);
   });
+  // Removed custom expect function as it is now imported from @jest/globals
 });

@@ -1,4 +1,5 @@
 import { TrucMatch } from "../game/TrucMatch.ts";
+import { test, expect, describe } from "@jest/globals";
 
 describe("Special Case 1 Tests", () => {
   const users = ["lluis", "pere", "agus", "bruno"];
