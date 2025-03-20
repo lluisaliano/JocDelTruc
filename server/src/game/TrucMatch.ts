@@ -1,5 +1,3 @@
-//TODO DEFINE ROUND, LAP, TURN AND APPLY BEFORE DOING ANYTHING ELSE
-
 import {
   Players,
   Score,
@@ -21,49 +19,67 @@ import { Queue } from "../utils/Queue.ts";
 import { InfiniteQueue } from "../utils/InfiniteQueue.ts";
 
 /**
- * Description:
- * This class represents a truc match
- * It will manage and keep all logic and states of the match.
+ * Represents a Truc match, managing all the logic and states of the game.
  *
  * Based on: https://injovemenorca.com/ca/Truc_menorqui/34773
  *
- * To Acknowledge:
- * Currently it only supports 2 teams of 2 players each.
- * To add more players, they should be added on a team, a match will always have 2 teams
- * The goal in the future is that it supports mutators, which will be parameters that will allow to change
- * game rules
+ * ### Overview:
+ * This class encapsulates the rules and flow of a Truc match, including player turns, laps, rounds,
+ * scoring, and special cases. It supports two teams with two players each and is designed to handle
+ * the traditional rules of Truco as well as potential future rule mutators.
  *
- * Definitions:
- * TURN: When a player throws one card.
- * LAP: When all players have thrown one card.
- * ROUND: When 3 laps are done, or less if an special case has happened
+ * ### Key Definitions:
+ * - **TURN**: When a player throws one card.
+ * - **LAP**: When all players have thrown one card.
+ * - **ROUND**: When three laps are completed, or fewer if a special case occurs.
  *
- * players: Array that contains all players of the match
+ * ### Key Features:
+ * - **Players and Teams**: Manages players and their respective teams.
+ * - **Game State**: Tracks the state of the game, including truc and envit states.
+ * - **Turn Management**: Handles the order of turns and laps using queues.
+ * - **Scoring**: Calculates and updates scores based on game rules and special cases.
+ * - **Special Cases**: Implements special cases for Truco and Envit scenarios.
+ * - **Randomized Start**: Randomly selects the starting player for each round.
  *
- * team{1,2}: Array that contain the players of the team
+ * ### Notes:
+ * - Currently supports only two teams with two players each.
+ * - Future enhancements may include support for more players and customizable rules via mutators.
+ * - The class is designed to notify clients of state changes and updates.
  *
- * player: Object that contains, the userName, the cards, the thrownCards, and the envit of the player
+ * ### Key Properties:
+ * - **players**: Array containing all players in the match.
+ * - **team1, team2**: Arrays representing the two teams.
+ * - **trucState, envitState**: Current states of truc and envit.
+ * - **turnQueue**: Queue managing the order of turns in a lap.
+ * - **roundInfiniteQueue**: Infinite queue managing the order of players across rounds.
+ * - **roundMaPlayer**: Player who starts the round (the "mà").
+ * - **score**: Object tracking the score of both teams.
  *
- * turnQueue: Queue that represents how the turns in one lap will ocurr.
- * It will be updated when a lap or a round has finished.
+ * ### Constants:
+ * - **WIN_SCORE**: The score required to win the match.
+ * - **TIE**: Constant representing a tie.
+ * - **trucScore**: Object mapping truc states to their respective scores.
+ * - **envitScore**: Object mapping envit states to their respective scores.
  *
- * currentTurn: Player who has the currentTurn
+ * ### Key Methods:
+ * - **getState()**: Returns the current state of the game.
+ * - **playerCall(player: Player, callType: CallType)**: Handles player actions like truc, envit, or abandoning.
+ * - **playerPlay(player: Player, cardId: cardId)**: Handles a player's card play and updates the game state.
+ * - **startNextRound()**: Prepares the game for the next round.
+ * - **updateMatchScore(roundState: roundState)**: Updates the match score based on the round's outcome.
+ * - **isMatchOver()**: Checks if a team has won the match.
+ * - **shuffleCards()**: Shuffles and distributes cards to players.
+ * - **assignEnvitToPlayers()**: Calculates and assigns envit values to players.
+ * - **getPlayerFromUser(userUserName: string)**: Retrieves a player object by username.
+ * - **deletePlayer(player: Player)**: Removes a player from the match.
+ * - **getPlayerTeam(player: Player)**: Returns the team of a given player.
  *
- * roundInfiniteQueue: Represents the order of the players.
- * This is used to know who has to start the next round, and how to define the next round first turnQueue
- *
- * The player who starts the next round is defined like this example:
- * At first we do: let player1 = getRandomPLayer
- * Then:
- * player1 -> player2 -> player3 -> player4 -> player1 -> player2 -> (until match ends)
- *
- * roundMaPlayer: Player who is ma of the round
- *
- * trucState: Truc confirmed situation
- *
- * envitState: Envit confirmed situation
- *
- * score: Score of the game
+ * ### Example Usage:
+ * ```typescript
+ * const trucMatch = new TrucMatch(["Alice", "Bob", "Charlie", "Diana"]);
+ * const state = trucMatch.getState();
+ * console.log(state);
+ * ```
  */
 export class TrucMatch {
   // Array that contains match players
