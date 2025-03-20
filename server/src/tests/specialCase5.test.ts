@@ -36,7 +36,7 @@ describe("Truc Match Class Tests", () => {
     ).toBe(true);
   });
 
-  test("Winner team bust be 1 and Lluis must start next lap queue", () => {
+  test("Winner team must be 1 and Lluis must start next lap queue", () => {
     trucMatch.playerPlay(pere, pere.cards[0].id);
     trucMatch.playerPlay(agus, agus.cards[0].id);
 
