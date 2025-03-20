@@ -204,7 +204,7 @@ export class TrucMatch {
 
     // The ma player will be the second player of the round queue, that is because of the before getPlayer(), it will be the first now
     // We assert it because it will never be null if we have more than 0 players
-    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate();
+    this.roundMaPlayer = this.roundInfiniteQueue.peek();
   }
 
   // This method will return a json with the current game status with everything, to send messages to clients
@@ -576,7 +576,7 @@ export class TrucMatch {
     // Get player who will start next round
     const player = this.roundInfiniteQueue.getPlayer();
     // Get Ma Player/ This wont be null because we will always have more than 0 players
-    this.roundMaPlayer = this.roundInfiniteQueue.getPlayerWithoutUpdate()!;
+    this.roundMaPlayer = this.roundInfiniteQueue.peek()!;
     // Define turnQueue
     this.turnQueue = new Queue(
       this.players,
@@ -986,11 +986,10 @@ export class TrucMatch {
     }
     // Check if there has been tie, get the 'ma' position of the player who is 'ma'
     if (team1EnvitAndTies.players.length > 1) {
-      team1EnvitAndTies.maPos =
-        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
-          team1EnvitAndTies.players,
-          false
-        ) as number;
+      team1EnvitAndTies.maPos = this.roundInfiniteQueue.getEarliestPlayer(
+        team1EnvitAndTies.players,
+        false
+      ) as number;
     }
 
     let team2EnvitAndTies: EnvitAndTies = {
@@ -1010,11 +1009,10 @@ export class TrucMatch {
     }
     // Check if there has been a tie, get the 'ma' position of the player who is 'ma'
     if (team2EnvitAndTies.players.length > 1) {
-      team2EnvitAndTies.maPos =
-        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
-          team2EnvitAndTies.players,
-          false
-        ) as number;
+      team2EnvitAndTies.maPos = this.roundInfiniteQueue.getEarliestPlayer(
+        team2EnvitAndTies.players,
+        false
+      ) as number;
     }
 
     // Update envit points to winnerTeam
@@ -1065,11 +1063,10 @@ export class TrucMatch {
     let teamBestTrucPlayer = {} as TeamBestTrucPlayerInterface;
     // If There is a tie on team, so we get the player who is ma
     if (playersWithMaxCardValue.length > 1) {
-      teamBestTrucPlayer.player =
-        this.roundInfiniteQueue.getFirstPlayerOrPlayerPosFromArrayOfPlayers(
-          playersWithMaxCardValue,
-          true
-        ) as Player;
+      teamBestTrucPlayer.player = this.roundInfiniteQueue.getEarliestPlayer(
+        playersWithMaxCardValue,
+        true
+      ) as Player;
     } else {
       teamBestTrucPlayer.player = playersWithMaxCardValue[0];
     }
