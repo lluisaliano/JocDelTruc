@@ -86,7 +86,7 @@ export class Queue {
 
     while (pointer !== null) {
       map.set(pointer.player, position);
-      pointer = pointer.next!;
+      pointer = pointer.next;
       position++;
     }
 
