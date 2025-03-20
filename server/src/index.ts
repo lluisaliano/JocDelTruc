@@ -18,10 +18,9 @@ import {
 
 const app = express();
 
-const PORT = 3000;
-const WS_PORT = 8080;
+const PORT = parseInt(process.env.PORT ?? "3000", 10);
+const WS_PORT = parseInt(process.env.WS_PORT ?? "8080", 10);
 
-// TODO USE .ENV FILE
 //TODO SPREAD THIS LOGIC IN DIFFERENT FILES
 //TODO ADD MATCHES TO LET USER JOIN A SPECIFIC MATCH
 // Registered Users
@@ -33,8 +32,7 @@ const registeredUsers: RegisteredUsers = {
 };
 
 // JWT Secret Key
-const secretKey =
-  "e1c6681060b348f2cb19b17cfd2b07c5b217956d43fe7fe0dd7737308287c6703fdfff15ca1f97018cf4e6aa4479aade9316a928d96fd2d03163f882c2ebebc5724be6160ae1dc791ea6ad50fbec498fa57a210eaab599d02ade4f7628ef309af9661ddcdefa391fd3ead3d39027e5d492b3a92feb4dbb36d5ba6db710d0d5f93db918c77483a76fd892987a53dc8dc996142d36ac76d3c0655ced4d9b4c2f29b8fa80bfab912be79dc1d998311e862bfc86f6eb8fc1b344b53ae6fddb0a54d2cc63019c6b59947bbda75fc753e6198a25ca23606b3be1fefbbe2a548aa09d5677c3480f12eac8bac0f716e3e215eb918101981b94d65bb9712c638bdbe66a39";
+const secretKey = process.env.SECRET_KEY as string;
 
 // Use Cors
 app.use(cors());
