@@ -214,6 +214,7 @@ wss.on("connection", (ws) => {
 
           responseMessage = {
             type: "startGameResponse",
+            data: gameState, // Adding the required 'data' property
             state: gameState,
             selfPlayerState: selfPlayerState,
           } as StartGameResponse;
@@ -297,6 +298,7 @@ wss.on("connection", (ws) => {
           // TODO This should change the player that thrown the card too to only update that on ui...
           responseMessage = {
             type: "stateUpdate",
+            data: gameState, // Adding the required 'data' property
             state: gameState,
             selfPlayerState: selfPlayerState,
           } as StateResponse;
