@@ -84,7 +84,7 @@ export class Queue {
     let pointer = this.getFirstNode();
     let position = 0;
 
-    while (pointer !== null) {
+    while (pointer !== this.last && pointer !== null) {
       map.set(pointer.player, position);
       pointer = pointer.next;
       position++;
