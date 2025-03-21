@@ -738,9 +738,12 @@ export class TrucMatch {
 
     // Check which team is winning or if there is a tie
     if (team1PlayerAndCard.cardValue === team2PlayerAndCard.cardValue) {
-      // If we have a tie, we will return ma player, because he will be next to throw
-      const maPlayer = this.roundMaPlayer;
-      winner = { tie: true, player: maPlayer };
+      // If we have a tie, we will return the player who throw first of the players that tied
+      const firstPlayerToThrow = this.roundInfiniteQueue.getEarliestPlayer(
+        [team1PlayerAndCard.player, team2PlayerAndCard.player],
+        true
+      ) as Player;
+      winner = { tie: true, player: firstPlayerToThrow };
     } else if (team1PlayerAndCard.cardValue > team2PlayerAndCard.cardValue) {
       winner = { tie: false, player: team1PlayerAndCard.player };
     } else {
