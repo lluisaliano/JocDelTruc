@@ -583,21 +583,42 @@ export class TrucMatch {
   }
 
   /**
-   * This method will update match score
-   * It will update the score depending on how the round was,
-   * but it will not handle round logic and special cases
+   * This method will update match score depending on how the round has ended
+   *
+   * @param roundState The state of the round
    *
    * TRUC
-   * #TODO CHANGE THIS DOCS TO NEW DOCUMENT (TRUCSPECIALCASES)
-   * SPECIAL CASE 1: First lap tie -> second lap won by a team
-   * SPECIAL CASE 2: First lap tie and second lap tie -> Third lap won by a team ->
-   * SPECIAL CASE 3: tie again -> user who is 'mà'(the player who throws first card) wins
-   * SPECIAL CASE 4: First lap won -> Second lap won   *
-   * SPECIAL CASE 5: First lap win -> Second lap lost -> third lap tie -> wins team who won first lap
-   * SPECIAL CASE 6: tie on the 3 laps -> wins team which has the player who is 'mà'(the player who threw the first card
-   * on the round)
+   * SPECIAL CASE 1
+   * Happens when the first lap has been tied, but the second has been won by a team.
+   * In this case, the team that won the second lap should win the game. (Team 1 wins)
+   * FIRST LAP TIED -> SECOND LAP WON
    *
-   * THIS METHOD HANDLES SPECIAL CASE 5 and SPECIAL CASE 6 LOGIC
+   * SPECIAL CASE 3
+   * Happens when a team wins the first lap, but the second is tied. In this case, wins the team
+   * that won the first lap. (Team 1 wins)
+   * FIRST LAP WON -> SECOND LAP TIED
+   *
+   * SPECIAL CASE 4
+   * Happens when a team wins both the first and second lap.
+   * In this case, that team wins the game. (Team 1 wins)
+   * FIRST LAP WON -> SECOND LAP WON
+   *
+   * This method handles the special cases 1, 3 and 4, because they all require three laps completed.
+   *
+   * SPECIAL CASE 2
+   * Happens when the first and second laps have been tied. In this case, wins the team
+   * that won the third lap. (Team 1 wins)
+   * FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
+   *
+   * SPECIAL CASE 5
+   * Hapeens win the first lap is won by a team, the second lap is lost by the same team, and the third lap is tied.
+   * and the third lap is a tie.
+   * Wins the team that won first lap. (Team 1 wins)
+   * FIRST LAP WON -> SECOND LAP LOST -> THIRD LAP TIED
+   *
+   * SPECIAL CASE 6
+   * There is a tie on three laps. Wins the team who has the player who is ma.
+   * FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP TIED (Ma wins)
    *
    * ENVIT
    * envit tie between two players -> wins player who is mà(the player who threw the its first card first)
