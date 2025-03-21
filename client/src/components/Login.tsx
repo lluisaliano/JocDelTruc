@@ -41,7 +41,7 @@ export function Login({ setAppPage }: PageProps) {
     setFormData((prevData) => {
       return {
         ...prevData,
-        [name]: value,
+        [name]: value.trim(),
       };
     });
   };
