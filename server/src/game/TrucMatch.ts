@@ -38,7 +38,7 @@ import { InfiniteQueue } from "../utils/InfiniteQueue.ts";
  * - **Game State**: Tracks the state of the game, including truc and envit states.
  * - **Turn Management**: Handles the order of turns and laps using queues.
  * - **Scoring**: Calculates and updates scores based on game rules and special cases.
- * - **Special Cases**: Implements special cases for Truco and Envit scenarios.
+ * - **Special Cases**: Implements special cases for Truc and Envit scenarios.
  * - **Randomized Start**: Randomly selects the starting player for each round.
  *
  * ### Notes:
@@ -503,61 +503,57 @@ export class TrucMatch {
   }
 
   /**
-   * Start next lap, if lap 3 has ended, we must start a new round, so this method will return null and playerPlay
-   * will handle it
+   * Start next lap, if lap 3 has ended, we must start a new round, so this method will return null and playerPlay will handle it.
+   * Otherwise, we will return the special cases that have been triggered.   *
    *
-   * TRUC SPECIAL CASES
-   * first lap tie -> second lap biggest card wins -> tie again (in second lap) -> hiddenCard biggest card wins -> tie again
-   * -> user who is 'mà'(the player who throws first card) wins
-   * (user should be able to select the cards)
+   * HANDLED BY THIS METHOD:
+   * - SPECIAL CASE 1: FIRST LAP TIED -> SECOND LAP WON
+   * - SPECIAL CASE 2: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
+   * - SPECIAL CASE 3: FIRST LAP WON -> SECOND LAP TIED
+   * - SPECIAL CASE 4: FIRST LAP WON -> SECOND LAP WON
    *
-   * first lap win -> second lap tie -> wins team who won first lap
-   *
-   * If a team wins first and second lap, that team must win
-   *
-   * (NOT HANDLED BY THIS METHOD)
-   * first lap win -> second lap lost -> third lap tie -> wins team who won first lap
-   * tie on the 3 laps -> wins team which has the player who is 'mà'(the player who throws first card)
-   * @param winnerPlayer
+   * NOT HANDLED BY THIS METHOD:
+   * - SPECIAL CASE 5: FIRST LAP WON -> SECOND LAP LOST -> THIRD LAP TIED #FIXME The test of this special case is giving error in this method for negative startPlayer on Queue
+   * - SPECIAL CASE 6: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP TIED
+   * @param winnerPlayer The player who is ma or this.tie
+   * @returns roundState
    */
   // TODO THIS MUST BE IMPROVED (CONDITIONS COULD BE SIMPLER)
   private startNextLap(winner: TieAndMaPlayer): roundState {
-    // IF FIRST LAP IS TIED, WE HAVE TWO SPECIAL CASES (IF WE ENTER HERE, WE ARE ON LAP 2 OR 3)
+    // If first lap has been tied, we enter here
     if (this.trucWonLaps[0] === this.TIE && this.lap > 1) {
-      // SPECIAL CASE 1 -> A TEAM WON THE SECOND LAP AFTER A TIE ON FIRST, SO THE ROUND IS OVER
+      // SPECIAL CASE 1: FIRST LAP TIED -> SECOND LAP WON
       if (!winner.tie && this.lap === 2) {
-        return "FIRST_LAP_TIE";
+        return "SPECIAL_CASE_1";
       } else {
-        // SPECIAL CASE 2 --> IF THERE IS A TIE ON SECOND LAP, THERE MUST BE PLAYED A THIRD LAP
-        // IF THIRD LAP HAS NOT BEEN PLAYED YET, WE WILL LET IT BE PLAYED BY NOT RETURNING ANYTHING
+        // SPECIAL CASE 2: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
+        // We must be on lap three to validate special case 2 winner
         if (this.lap === 3) {
-          // IF THIRD LAP HAS BEEN PLAYED, WE RETURN THE SPECIAL CASE ROUNDTYPE
-          return "FIRST_LAP_TIE_AND_SECOND_LAP_TIE";
+          return "SPECIAL_CASE_2";
         }
       }
     }
 
-    // SPECIAL CASE 3 --> IF FIRST LAP IS WON BY A TEAM (NOT A TIE) BUT SECOND IS A TIE
+    // SPECIAL CASE 3: FIRST LAP WON -> SECOND LAP TIED
     if (this.lap === 2 && winner.tie && this.trucWonLaps[0] !== this.TIE) {
-      return "SECOND_LAP_TIE";
+      return "SPECIAL_CASE_3";
     }
 
-    // SPECIAL CASE 5 --> IF SAME TEAM WON FIRST AND SECOND LAPS
+    // SPECIAL CASE 4: FIRST LAP WON -> SECOND LAP WON
     if (
       this.trucWonLaps[0] === this.trucWonLaps[1] &&
-      !winner.tie &&
-      this.lap === 2
+      this.trucWonLaps[0] !== this.TIE
     ) {
-      return "FIRST_SECOND_LAP_WIN";
+      return "SPECIAL_CASE_4";
     }
 
-    // IF LAP COUNTER IS 3, THE ROUND HAS FINISHED NORMALLY
+    // If lap counter is 3, the round has been finished normally
     if (this.lap === 3) {
       return "NORMAL";
     }
 
-    // IF NO SPECIAL CASES OR THE ROUND IS NOT FINISHED (LAP !== 3), THE WINNER PLAYER WILL START NEXT LAP
-    // IF PLAYERS TIED ON THE FIRST ROUND, THE WINNER PLAYER WILL BE THE MA PLAYER, WHO WILL FIRST THROW ON NEXT LAP
+    // If there has not been special cases, and the round is not finished (LAP !== 3), the winner player will start next lap.
+    // If players tied on the first round, the winner player will be the Ma Player and will throw first on next lap.
     //TODO THIS MUST BE IMPROVED AND ENCAPSULATED IN OTHER METHODS TOGETHER WITH STARTNEXTROUND CODE DRY
     const nextLapPlayer = winner.player;
     this.turnQueue = new Queue(
@@ -605,23 +601,18 @@ export class TrucMatch {
     // TODO WE SHOULD USE RETURNS TO NOTIFY THIS
   }
 
+  // TODO THIS IS WRONG, SPECIALS CASE ARE NOT OK
   /**
    * This method will update match score
    * It will update the score depending on how the round was,
    * but it will not handle round logic and special cases
    *
    * TRUC
-   * SPECIAL CASE 1: first lap tie -> second lap biggest card wins ->
-   * SPECIAL CASE 2: first lap tie and second lap tie -> third lap card wins ->
-   * SPECIAL CASE 3: tie again -> user who is 'mà'(the player who throws first card) wins
-   * SPECIAL CASE 4: first lap won -> second lap won
-   *
-   * first lap win -> second round tie -> wins team who won first lap
-   *
-   * If a team wins two laps in a row, round is finished with just two laps
-   *
-   *
-   * SPECIAL CASE 5: first lap win -> secound lap lost -> third lap tie -> wins team who won first lap
+   * SPECIAL CASE 1 OK: First lap tie -> second lap won by a team
+   * SPECIAL CASE 2 OK: First lap tie and second lap tie -> Third lap won by a team ->
+   * SPECIAL CASE 3 WRONG: tie again -> user who is 'mà'(the player who throws first card) wins
+   * SPECIAL CASE 4 OK: First lap won -> Second lap won   *
+   * SPECIAL CASE 5 OK: First lap win -> Second lap lost -> third lap tie -> wins team who won first lap
    * SPECIAL CASE 6: tie on the 3 laps -> wins team which has the player who is 'mà'(the player who threw the first card
    * on the round)
    *
@@ -638,7 +629,7 @@ export class TrucMatch {
      * SPECIAL CASE 1
      * We just need to check the winner of the trucWinner of the second lap
      */
-    if (roundState === "FIRST_LAP_TIE") {
+    if (roundState === "SPECIAL_CASE_1") {
       winnerTeam = this.trucWonLaps[1] as Team; // If we are here, we will always have a team not a tie
     }
 
@@ -646,7 +637,7 @@ export class TrucMatch {
      * SPECIAL CASE 2
      * In this case, we will only check the winner of the third lap
      */
-    if (roundState === "FIRST_LAP_TIE_AND_SECOND_LAP_TIE") {
+    if (roundState === "SPECIAL_CASE_2") {
       winnerTeam = this.trucWonLaps[2] as Team; // If we are here, we will always have a team not a tie
     }
 
@@ -656,9 +647,9 @@ export class TrucMatch {
      * To get the winner for SPECIA CASE 4, we have to do the same (we could also check winner of second round)
      */
     if (
-      roundState === "SECOND_LAP_TIE" ||
-      roundState === "TEAM_WON_TWO_LAPS_IN_A_ROW" ||
-      roundState === "FIRST_SECOND_LAP_WIN"
+      roundState === "SPECIAL_CASE_3" ||
+      roundState === "TEAM_WON_TWO_LAPS_IN_A_ROW" || //FIXME THIS AND THE BOTTOM CONDITION WERE THE SAME
+      roundState === "SPECIAL_CASE_4"
     ) {
       winnerTeam = this.trucWonLaps[0] as Team; // If we are here, we will always have a team not a tie
     }
