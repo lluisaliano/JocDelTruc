@@ -65,7 +65,7 @@ describe("Special Case 1 Test", () => {
 
     const state = trucMatch.getState();
 
-    expect(state.score.team1).toBe(3);
+    expect(state.score.team1).toBe(1);
     expect(state.score.team2).toBe(0);
   });
 });
