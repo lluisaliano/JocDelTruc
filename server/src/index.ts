@@ -2,6 +2,7 @@ import express, { response } from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer } from "ws";
+import * as dotenv from "dotenv";
 
 import { Users } from "./types/game.ts";
 import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
@@ -15,6 +16,8 @@ import {
   StartGameResponse,
   StateResponse,
 } from "./types/messages.ts";
+
+dotenv.config();
 
 const app = express();
 
@@ -32,7 +35,7 @@ const registeredUsers: RegisteredUsers = {
 };
 
 // JWT Secret Key
-const secretKey = process.env.SECRET_KEY as string;
+const secretKey = process.env.JWT_KEY as string;
 
 // Use Cors
 app.use(cors());
