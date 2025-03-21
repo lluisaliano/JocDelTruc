@@ -510,11 +510,11 @@ export class TrucMatch {
    *
    * HANDLED BY THIS METHOD:
    * - SPECIAL CASE 1: FIRST LAP TIED -> SECOND LAP WON
-   * - SPECIAL CASE 2: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
    * - SPECIAL CASE 3: FIRST LAP WON -> SECOND LAP TIED
    * - SPECIAL CASE 4: FIRST LAP WON -> SECOND LAP WON
    *
    * NOT HANDLED BY THIS METHOD:
+   * - SPECIAL CASE 2: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
    * - SPECIAL CASE 5: FIRST LAP WON -> SECOND LAP LOST -> THIRD LAP TIED #FIXME The test of this special case is giving error in this method for negative startPlayer on Queue
    * - SPECIAL CASE 6: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP TIED
    * @param winnerPlayer The player who is ma or this.tie
@@ -527,12 +527,6 @@ export class TrucMatch {
       // SPECIAL CASE 1: FIRST LAP TIED -> SECOND LAP WON
       if (!winner.tie && this.lap === 2) {
         return "SPECIAL_CASE_1";
-      } else {
-        // SPECIAL CASE 2: FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
-        // We must be on lap three to validate special case 2 winner
-        if (this.lap === 3) {
-          return "SPECIAL_CASE_2";
-        }
       }
     }
 
@@ -638,14 +632,6 @@ export class TrucMatch {
     }
 
     /**
-     * SPECIAL CASE 2
-     * In this case, we will only check the winner of the third lap
-     */
-    if (roundState === "SPECIAL_CASE_2") {
-      winnerTeam = this.trucWonLaps[2] as Team; // If we are here, we will always have a team not a tie
-    }
-
-    /**
      * SPECIAL CASE 3 and SPECIAL CASE 4
      * To get the winner, we will check the winner of the first lap for SPECIAL CASE 3
      * To get the winner for SPECIA CASEL 4, we have to do the same (we could also check winner of second round)
@@ -665,6 +651,12 @@ export class TrucMatch {
         (team) => this.team2 === team
       ).length;
 
+      /**
+       * NORMAL GAME
+       * SPECIAL CASE 2 is also handled here, because the team that won third lap, will be assigned
+       * as winner.
+       * FIRST LAP TIED -> SECOND LAP TIED -> THIRD LAP WON
+       */
       if (cardWinnedLapsTeam1 > cardWinnedLapsTeam2) {
         winnerTeam = this.team1;
       } else if (cardWinnedLapsTeam1 < cardWinnedLapsTeam2) {
