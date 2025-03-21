@@ -21,7 +21,6 @@ describe("Special Case 5 test", () => {
   const agus = players[2];
   const bruno = players[3];
 
-  // Change Lluis cards
   lluis.cards = [
     { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
     { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },

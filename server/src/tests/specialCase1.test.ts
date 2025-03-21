@@ -20,10 +20,9 @@ describe("Special Case 1 Test", () => {
   const agus = players[2];
   const bruno = players[3];
 
-  // Change Lluis cards
   lluis.cards = [
     { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
-    { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
+    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
     { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
 
@@ -33,13 +32,23 @@ describe("Special Case 1 Test", () => {
     { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
 
-  // First Lap
-  // Throw first card
+  agus.cards = [
+    { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },
+    { id: "set_espasses", trucValue: 9, envitValue: 7, palo: "espasses" },
+  ];
+
+  bruno.cards = [
+    { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },
+    { id: "set_espasses", trucValue: 9, envitValue: 7, palo: "espasses" },
+  ];
+
   test("First lap tie", () => {
-    trucMatch.playerPlay(lluis, "madona");
-    trucMatch.playerPlay(pere, "madona");
-    trucMatch.playerPlay(agus, agus.cards[0].id);
-    trucMatch.playerPlay(bruno, bruno.cards[0].id);
+    trucMatch.playerPlay(lluis, "amo");
+    trucMatch.playerPlay(pere, "amo");
+    trucMatch.playerPlay(agus, "set_copes");
+    trucMatch.playerPlay(bruno, "set_copes");
 
     const state = trucMatch.getState();
 
@@ -47,10 +56,10 @@ describe("Special Case 1 Test", () => {
   });
 
   test("Second lap score = 1 for team 1", () => {
-    trucMatch.playerPlay(pere, "set_copes");
-    trucMatch.playerPlay(agus, agus.cards[0].id);
-    trucMatch.playerPlay(bruno, bruno.cards[0].id);
     trucMatch.playerPlay(lluis, "amo");
+    trucMatch.playerPlay(pere, "set_copes");
+    trucMatch.playerPlay(agus, "set_bastos");
+    trucMatch.playerPlay(bruno, "set_bastos");
 
     const state = trucMatch.getState();
 

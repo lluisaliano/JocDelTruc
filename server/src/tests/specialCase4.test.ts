@@ -20,7 +20,6 @@ describe("Special Case 4 Test", () => {
   const agus = players[2];
   const bruno = players[3];
 
-  // Change Lluis cards
   lluis.cards = [
     { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
     { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
@@ -47,7 +46,7 @@ describe("Special Case 4 Test", () => {
 
   // First Lap
   // Team 1 wins
-  test("First lap tie", () => {
+  test("First lap win", () => {
     trucMatch.playerPlay(lluis, "amo");
     trucMatch.playerPlay(pere, "madona");
     trucMatch.playerPlay(agus, "set_bastos");

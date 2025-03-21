@@ -20,9 +20,8 @@ describe("Special Case 2 Test", () => {
   const agus = players[2];
   const bruno = players[3];
 
-  // Change Lluis cards
   lluis.cards = [
-    { id: "un_espasses", trucValue: 4, envitValue: 7, palo: "espasses" },
+    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
     { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
     { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
@@ -33,13 +32,23 @@ describe("Special Case 2 Test", () => {
     { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
 
-  // First Lap
-  // Throw first card
+  agus.cards = [
+    { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
+    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
+  ];
+
+  bruno.cards = [
+    { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
+    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
+  ];
+
   test("First lap tie", () => {
     trucMatch.playerPlay(lluis, "madona");
-    trucMatch.playerPlay(pere, "madona");
-    trucMatch.playerPlay(agus, agus.cards[0].id);
-    trucMatch.playerPlay(bruno, bruno.cards[0].id);
+    trucMatch.playerPlay(pere, "amo");
+    trucMatch.playerPlay(agus, "amo");
+    trucMatch.playerPlay(bruno, "madona");
 
     const state = trucMatch.getState();
 
@@ -47,9 +56,9 @@ describe("Special Case 2 Test", () => {
   });
 
   test("Second lap tie", () => {
-    trucMatch.playerPlay(pere, "amo");
-    trucMatch.playerPlay(agus, agus.cards[0].id);
-    trucMatch.playerPlay(bruno, bruno.cards[0].id);
+    trucMatch.playerPlay(pere, "madona");
+    trucMatch.playerPlay(agus, "madona");
+    trucMatch.playerPlay(bruno, "amo");
     trucMatch.playerPlay(lluis, "amo");
 
     const state = trucMatch.getState();
@@ -58,10 +67,10 @@ describe("Special Case 2 Test", () => {
   });
 
   test("Third lap win", () => {
+    trucMatch.playerPlay(bruno, "set_copes");
+    trucMatch.playerPlay(lluis, "amo");
     trucMatch.playerPlay(pere, "set_copes");
-    trucMatch.playerPlay(agus, agus.cards[0].id);
-    trucMatch.playerPlay(bruno, bruno.cards[0].id);
-    trucMatch.playerPlay(lluis, "un_espasses");
+    trucMatch.playerPlay(agus, "set_copes");
 
     const state = trucMatch.getState();
 

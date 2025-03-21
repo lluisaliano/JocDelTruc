@@ -114,7 +114,7 @@ export class TrucMatch {
   // This array will contain the team which has won the rounds
   private trucWonLaps: (Team | typeof this.TIE)[] = [];
 
-  // Define turnsWith with a Queue
+  // Define turns with a Queue
   private turnQueue: Queue;
 
   // Define who has the turn in the current round
@@ -184,17 +184,6 @@ export class TrucMatch {
     // Assign them shuffled cards
     this.shuffleCards();
 
-    // TODO CHANGE CARDS FOR TESTING, THIS SHOULD BE REMOVED
-    const firstRoundCards: Card[] = [
-      { id: "dos_copes", trucValue: 6, envitValue: 2, palo: "copes" },
-      { id: "tres_espasses", trucValue: 7, envitValue: 3, palo: "espasses" },
-      { id: "tres_bastos", trucValue: 7, envitValue: 3, palo: "bastos" },
-      { id: "tres_oros", trucValue: 7, envitValue: 3, palo: "oros" },
-    ];
-    this.players.forEach((player, i) => {
-      player.cards[0] = firstRoundCards[i];
-    });
-
     // Assign envit to players
     this.assignEnvitToPlayers();
 
@@ -204,23 +193,19 @@ export class TrucMatch {
     const playerPosition = 0; // So it always is lluis
     this.roundInfiniteQueue = new InfiniteQueue(this.players, playerPosition);
 
-    // We get the player on purpose to advance a position on roundInfiniteQueue
-    const player = this.roundInfiniteQueue.getPlayer();
+    // We get the maPlayer without retrieving it in InfiniteQueue
+    this.roundMaPlayer = this.roundInfiniteQueue.peek();
 
     // We create the turnQueue
     this.turnQueue = new Queue(
       this.players,
-      this.getPlayerPositionInPlayersArray(player)
+      this.getPlayerPositionInPlayersArray(this.roundMaPlayer)
     );
 
     // Current turn on beginning will be the player who is first on the turnQueue
     // (also this is the one who started the round turn)
     // If we have more than 0 players, this will not be null, so we assert it
     this.currentTurn = this.turnQueue.getPlayer()!;
-
-    // The ma player will be the second player of the round queue, that is because of the before getPlayer(), it will be the first now
-    // We assert it because it will never be null if we have more than 0 players
-    this.roundMaPlayer = this.roundInfiniteQueue.peek();
   }
 
   // This method will return a json with the current game status with everything, to send messages to clients
@@ -739,7 +724,7 @@ export class TrucMatch {
     // Check which team is winning or if there is a tie
     if (team1PlayerAndCard.cardValue === team2PlayerAndCard.cardValue) {
       // If we have a tie, we will return the player who throw first of the players that tied
-      const firstPlayerToThrow = this.roundInfiniteQueue.getEarliestPlayer(
+      const firstPlayerToThrow = this.turnQueue.getEarliestPlayer(
         [team1PlayerAndCard.player, team2PlayerAndCard.player],
         true
       ) as Player;
@@ -1067,7 +1052,7 @@ export class TrucMatch {
     let teamBestTrucPlayer = {} as TeamBestTrucPlayerInterface;
     // If There is a tie on team, we get the player who is ma
     if (playersWithMaxCardValue.length > 1) {
-      teamBestTrucPlayer.player = this.roundInfiniteQueue.getEarliestPlayer(
+      teamBestTrucPlayer.player = this.turnQueue.getEarliestPlayer(
         playersWithMaxCardValue,
         true
       ) as Player;

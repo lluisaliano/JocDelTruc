@@ -30,7 +30,7 @@ import { Player, Players } from "../types/game.ts";
 export class Queue {
   private first: Node | null;
   private last: Node | null;
-  private length: number;
+  private originalQueue: Players = [];
   constructor(players: Players, startPlayerPos: number) {
     // If there are no players or startPlayerPos is wrong
     if (startPlayerPos < 0 || startPlayerPos >= players.length) {
@@ -39,7 +39,6 @@ export class Queue {
 
     this.first = { player: players[startPlayerPos], next: null };
     this.last = this.first;
-    this.length = players.length;
 
     let pointer = this.first;
     let numPlayers = players.length;
@@ -50,6 +49,8 @@ export class Queue {
       pointer.next = { player: players[nextPlayerPos], next: null };
       pointer = pointer.next;
 
+      // We save the queue in an array that will not be modified, to get ma players from there for each lap
+      this.originalQueue.push(pointer.player);
       if (i == numPlayers - 1) {
         this.last = pointer;
       }
@@ -81,48 +82,18 @@ export class Queue {
     return node.player;
   }
 
-  private buildPlayerPositionMap(): Map<string, number> {
-    const map = new Map<string, number>();
-    let pointer = this.getFirstNode();
-    let position = 0;
-    for (let i = 0; i < this.length; i++) {
-      map.set(pointer!.player.userName, position);
-      pointer = pointer!.next;
-      position++;
-    }
-    return map;
-  }
-
-  /**
-   * Retrieves the earliest player based on their position in the queue.
-   *
-   * @param players - A collection of players to evaluate.
-   * @param returnPlayer - A boolean indicating whether to return the player object
-   *                       or their position in the queue.
-   * @returns The earliest player object if `returnPlayer` is true, otherwise the
-   *          position of the earliest player in the queue.
-   */
   getEarliestPlayer(players: Players, returnPlayer: boolean) {
-    interface AuxInterface {
-      player: null | Player;
-      pos: number;
-    }
-    let firstPlayer: AuxInterface = {
-      player: null,
-      pos: Number.MAX_SAFE_INTEGER,
-    };
-
-    let bestPos = Number.MAX_SAFE_INTEGER;
-    let positionMap = this.buildPlayerPositionMap();
+    let earliestPlayer;
+    let earliestPlayerIndex = Infinity;
 
     for (const player of players) {
-      const pos = positionMap.get(player.userName);
-      if (pos !== undefined && pos < bestPos) {
-        bestPos = pos;
-        firstPlayer = { player, pos: bestPos };
+      const playerIndex = this.originalQueue.indexOf(player);
+      if (playerIndex < earliestPlayerIndex) {
+        earliestPlayer = player;
+        earliestPlayerIndex = playerIndex;
       }
     }
-    return returnPlayer ? firstPlayer.player : bestPos;
+    return earliestPlayer ? earliestPlayer : earliestPlayerIndex;
   }
 
   protected getLastNode() {
