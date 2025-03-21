@@ -459,7 +459,9 @@ export class TrucMatch {
     if (!this.setNextCurrentTurn()) {
       /**
        * If startNextLap returns CURRENT_ROUND_IS_NOT_FINISHED,
-       * the round is not finished, if it returns normal, there has not been any special case,
+       * the round is not finished, if it returns normal,
+       * there has not been any special case that is handled by that method
+       * (SPECIAL CASE 1, SPECIAL CASE 2, SPECIAL CASE 3, SPECIAL CASE 4)
        * otherwise, an special case has been triggered
        */
       const roundState = this.startNextLap(
@@ -751,7 +753,7 @@ export class TrucMatch {
     } else if (team1PlayerAndCard.cardValue > team2PlayerAndCard.cardValue) {
       winner = { tie: false, player: team1PlayerAndCard.player };
     } else {
-      winner = { tie: false, player: team1PlayerAndCard.player };
+      winner = { tie: false, player: team2PlayerAndCard.player };
     }
 
     // Assign the team that won the round or this.TIE to won laps array
@@ -1037,6 +1039,7 @@ export class TrucMatch {
     }
   }
 
+  // This method is cool!
   private getTeamBestTrucPlayerAndCardOnLap(team: Team, lap: typeof this.lap) {
     // We get an array of all the thrown cards in this lap
     let teamTrucCardsAndPlayers = new Map<number, Players>();
@@ -1068,7 +1071,7 @@ export class TrucMatch {
     }
 
     let teamBestTrucPlayer = {} as TeamBestTrucPlayerInterface;
-    // If There is a tie on team, so we get the player who is ma
+    // If There is a tie on team, we get the player who is ma
     if (playersWithMaxCardValue.length > 1) {
       teamBestTrucPlayer.player = this.roundInfiniteQueue.getEarliestPlayer(
         playersWithMaxCardValue,
