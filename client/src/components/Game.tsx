@@ -114,13 +114,15 @@ export function Game({ setAppPage }: PageProps) {
   return (
     <div className="gameContainer">
       <HeadMenu>
-        <h1>Truc Menorquí</h1>
+        <div className="titleContainer">
+          <h1>Truc Menorquí</h1>
+        </div>
         <div className="sideButtons">
           <button className="sessionButton" onClick={handleNewGame}>
-            Nova Partida
+            Començar Partida
           </button>
           <button className="sessionButton" onClick={handleLogOut}>
-            Tancar Sessió
+            <img src="/GameImages/leaveIcon.svg" alt="Log out button" />
           </button>
         </div>
       </HeadMenu>

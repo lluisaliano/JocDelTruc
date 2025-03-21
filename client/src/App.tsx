@@ -32,7 +32,7 @@ function App() {
 
   return (
     <>
-      <main style={{ height: "100dvh" }}>{page}</main>
+      <main style={{ height: "100dvh", maxWidth: "100dvw" }}>{page}</main>
       <ToastContainer position="top-center" autoClose={2000} />
     </>
   );

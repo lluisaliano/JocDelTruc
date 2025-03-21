@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
 
 .headContainer {
-  background-color: white;
   position: relative;
   top: 0;
   width: 100dvw;
@@ -13,32 +12,32 @@
 }
 
 .sideButtons {
+  justify-content: right;
   display: flex;
   flex-flow: row;
-  justify-content: center;
-  align-items: center;
-  gap: 1em;
-  grid-column: 3 / 4;
+  gap: 0.5em;
+  grid-column: 2 / 4;
+  margin-right: 0.5rem;
 }
 
 .sessionButton {
-  background-color: #ffffff; /* Fondo blanco */
-  color: #333333; /* Texto oscuro para contraste */
-  padding: 0.3em; /* Espaciado interno */
-  border: 1px solid #333333; /* Borde oscuro */
-  border-radius: 8px; /* Bordes redondeados */
-  font-size: 0.8em; /* Tamaño de texto */
+  border: none;
+  background-color: transparent;
+  color: #ffffff; /* Texto oscuro para contraste */
   font-weight: 600; /* Peso de la fuente */
   cursor: pointer; /* Mano al pasar el ratón */
   transition: all 0.3s ease; /* Transición suave */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+.sessionButton img {
+  height: 3em;
+  background-color: red;
+  border-radius: 4px;
 }
 
 /* Efecto al pasar el ratón */
 .sessionButton:hover {
-  background-color: #f0f0f0; /* Fondo gris claro */
   transform: translateY(-2px); /* Elevación leve */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
 }
 
 /* Efecto al hacer clic */
@@ -47,10 +46,19 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Sombra más pequeña */
 }
 
+.titleContainer {
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1 / 2;
+  margin-left: 1rem;
+  border-radius: 0px 0px 3px 3px;
+}
+
 .headContainer h1 {
   align-self: center;
   font-family: "Raleway";
-  font-size: 2rem;
-  text-align: center;
-  grid-column: 2 / 3;
+  font-size: 1em;
+  text-align: left;
 }
