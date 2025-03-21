@@ -30,6 +30,7 @@ import { Player, Players } from "../types/game.ts";
 export class Queue {
   private first: Node | null;
   private last: Node | null;
+  private length: number;
   constructor(players: Players, startPlayerPos: number) {
     // If there are no players or startPlayerPos is wrong
     if (startPlayerPos < 0 || startPlayerPos >= players.length) {
@@ -38,6 +39,7 @@ export class Queue {
 
     this.first = { player: players[startPlayerPos], next: null };
     this.last = this.first;
+    this.length = players.length;
 
     let pointer = this.first;
     let numPlayers = players.length;
@@ -79,17 +81,15 @@ export class Queue {
     return node.player;
   }
 
-  private buildPlayerPositionMap(): Map<Player, number> {
-    const map = new Map<Player, number>();
+  private buildPlayerPositionMap(): Map<string, number> {
+    const map = new Map<string, number>();
     let pointer = this.getFirstNode();
     let position = 0;
-
-    while (pointer !== this.last && pointer !== null) {
-      map.set(pointer.player, position);
-      pointer = pointer.next;
+    for (let i = 0; i < this.length; i++) {
+      map.set(pointer!.player.userName, position);
+      pointer = pointer!.next;
       position++;
     }
-
     return map;
   }
 
@@ -116,13 +116,13 @@ export class Queue {
     let positionMap = this.buildPlayerPositionMap();
 
     for (const player of players) {
-      const pos = positionMap.get(player);
+      const pos = positionMap.get(player.userName);
       if (pos !== undefined && pos < bestPos) {
         bestPos = pos;
         firstPlayer = { player, pos: bestPos };
       }
-      return returnPlayer ? firstPlayer.player : bestPos;
     }
+    return returnPlayer ? firstPlayer.player : bestPos;
   }
 
   protected getLastNode() {
