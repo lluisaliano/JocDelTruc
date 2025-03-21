@@ -1,7 +1,7 @@
 import { test, expect, describe } from "@jest/globals";
 import { TrucMatch } from "../game/TrucMatch.ts";
 
-describe("Truc Match Class Tests", () => {
+describe("Special Case 5 test", () => {
   const users = ["lluis", "pere", "agus", "bruno"];
 
   let trucMatch = new TrucMatch(users);

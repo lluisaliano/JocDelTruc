@@ -6,7 +6,7 @@ import { test, expect, describe } from "@jest/globals";
  * Happens when the first lap has been tied, but the second has been won by a team.
  * In this case, the team that won the second lap should win the game. (Team 1 wins)
  *  */
-describe("Special Case 1 Tests", () => {
+describe("Special Case 1 Test", () => {
   const users = ["lluis", "pere", "agus", "bruno"];
 
   let trucMatch = new TrucMatch(users);
