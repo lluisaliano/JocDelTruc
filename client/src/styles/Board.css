@@ -1,7 +1,12 @@
-body {
-  height: 100dvh;
-  margin: 0;
-  padding: 0;
+/* TABLE IMAGE CSS*/
+.tableImage {
+  z-index: -1;
+  position: absolute;
+  top: 25dvh;
+  left: 50%;
+  transform: translateX(-50%);
+  height: auto;
+  width: 150dvh;
 }
 
 .container {
@@ -114,14 +119,4 @@ body {
   /* Reducir imágenes */
   vertical-align: middle;
   min-width: 4rem;
-}
-
-.tableImage {
-  z-index: -1;
-  position: absolute;
-  top: 11em;
-  left: 50%;
-  transform: translateX(-50%);
-  height: auto;
-  width: 85%;
 }
