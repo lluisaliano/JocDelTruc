@@ -29,7 +29,9 @@ export function Player({
           type={"normal"}
         ></PlayerCards>
       </div>
-      <b>{name ? name : "Jugador no conectat"}</b>
+      <p style={{ color: "white" }}>
+        <b>{name ? name : "Jugador no conectat"}</b>
+      </p>
     </div>
   );
 }
