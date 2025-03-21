@@ -1,12 +1,13 @@
-import { TrucMatch } from "../game/TrucMatch.ts";
 import { test, expect, describe } from "@jest/globals";
+import { TrucMatch } from "../../game/TrucMatch.ts";
 
 /**
- * SPECIAL CASE 4
- * Happens when a team wins both the first and second lap.
- * In this case, that team wins the game. (Team 1 wins)
+ * SPECIAL CASE 5
+ * Hapeens win the first lap is won by a team, the second lap is lost by the same team, and the third lap is tied.
+ * and the third lap is a tie.
+ * Wins the team that won first lap. (Team 1 wins)
  *  */
-describe("Special Case 4 Test", () => {
+describe("Special Case 5 test", () => {
   const users = ["lluis", "pere", "agus", "bruno"];
 
   let trucMatch = new TrucMatch(users);
@@ -22,14 +23,14 @@ describe("Special Case 4 Test", () => {
 
   lluis.cards = [
     { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
-    { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
+    { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },
     { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
 
   pere.cards = [
     { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },
     { id: "madona", trucValue: 12, envitValue: 7, palo: "comodin" },
-    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
   ];
 
   agus.cards = [
@@ -39,18 +40,18 @@ describe("Special Case 4 Test", () => {
   ];
 
   bruno.cards = [
-    { id: "set_copes", trucValue: 4, envitValue: 7, palo: "copes" },
+    { id: "amo", trucValue: 13, envitValue: 8, palo: "comodin" },
     { id: "set_bastos", trucValue: 4, envitValue: 7, palo: "bastos" },
     { id: "set_espasses", trucValue: 9, envitValue: 7, palo: "espasses" },
   ];
 
   // First Lap
   // Team 1 wins
-  test("First lap win", () => {
+  test("First lap won", () => {
     trucMatch.playerPlay(lluis, "amo");
     trucMatch.playerPlay(pere, "madona");
-    trucMatch.playerPlay(agus, "set_bastos");
-    trucMatch.playerPlay(bruno, "set_bastos");
+    trucMatch.playerPlay(agus, "set_espasses");
+    trucMatch.playerPlay(bruno, "set_espasses");
 
     const state = trucMatch.getState();
 
@@ -58,12 +59,25 @@ describe("Special Case 4 Test", () => {
   });
 
   // Second Lap
-  // There is a tie
-  test("First lap tie", () => {
-    trucMatch.playerPlay(lluis, "madona");
+  // Team 1 loses
+  test("Second lap lost", () => {
+    trucMatch.playerPlay(lluis, "set_copes");
     trucMatch.playerPlay(pere, "set_copes");
     trucMatch.playerPlay(agus, "set_copes");
-    trucMatch.playerPlay(bruno, "set_copes");
+    trucMatch.playerPlay(bruno, "amo");
+
+    const state = trucMatch.getState();
+
+    expect(state.trucWonLaps[1]).toBe(state.team2);
+  });
+
+  // Third lap
+  // Tie
+  test("Third lap tie", () => {
+    trucMatch.playerPlay(bruno, "set_bastos");
+    trucMatch.playerPlay(lluis, "set_bastos");
+    trucMatch.playerPlay(pere, "set_bastos");
+    trucMatch.playerPlay(agus, "set_bastos");
 
     const state = trucMatch.getState();
 

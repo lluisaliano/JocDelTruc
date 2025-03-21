@@ -1,4 +1,4 @@
-import { TrucMatch } from "../game/TrucMatch.ts";
+import { TrucMatch } from "../../game/TrucMatch.ts";
 import { test, expect, describe } from "@jest/globals";
 
 /**
