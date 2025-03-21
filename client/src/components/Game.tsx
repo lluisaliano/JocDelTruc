@@ -16,7 +16,7 @@ const cardImages = import.meta.glob<{ default: string }>(
 );
 
 //TODO Export this on .env file
-const API_URL = "http://192.168.1.62:8080";
+const API_URL = String(import.meta.env.VITE_API_URL);
 
 export function Game({ setAppPage }: PageProps) {
   // We will store the websocket in a ref, so we can send messages from all event handlers. This Ref will be stored in a context
@@ -77,8 +77,7 @@ export function Game({ setAppPage }: PageProps) {
 
     // Clean function
     return () => {
-      console.log("UseEffect WebSocket CleanUp function");
-      ws.close(1000, "Closing WebSocket, UseEffect CleanUp Function");
+      ws.close(1000, "Closing WebSocket, UseEffect cleanUp Function");
     };
   }, []);
 

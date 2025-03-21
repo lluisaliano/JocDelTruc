@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 
 import { PageProps } from "../types/params";
 
+import "../styles/Login.css";
+
 export function Login({ setAppPage }: PageProps) {
   const [formData, setFormData] = useState<AuthenticationData>({
     userName: "",
@@ -47,34 +49,35 @@ export function Login({ setAppPage }: PageProps) {
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="userName">Nom d'usuari</label>
+    <div className="loginWrapper">
+      <form className="loginForm" onSubmit={handleSubmit}>
+        <h2>Truc Menorquí</h2>
+        <div className="inputGroup">
           <input
             name="userName"
             id="userName"
             type="text"
-            placeholder="Usuari"
+            placeholder=" "
             value={formData.userName}
             onChange={handleFormChange}
             required
-          ></input>
+          />
+          <label htmlFor="userName">Nom d'usuari</label>
         </div>
-        <div>
-          <label htmlFor="password">Contraseña</label>
+        <div className="inputGroup">
           <input
             name="password"
             id="password"
             type="password"
-            placeholder="Contraseña"
+            placeholder=" "
             value={formData.password}
             onChange={handleFormChange}
             required
-          ></input>
+          />
+          <label htmlFor="password">Contraseña</label>
         </div>
         <button type="submit">Iniciar Sessió</button>
       </form>
-    </>
+    </div>
   );
 }
