@@ -1,6 +1,11 @@
 import { TrucMatch } from "../game/TrucMatch.ts";
 import { test, expect, describe } from "@jest/globals";
 
+/**
+ * SPECIAL CASE 2
+ * Happens when the first and second laps have been tied. In this case, wins the team
+ * that won the third lap. (Team 1 wins)
+ *  */
 describe("Special Case 2 Test", () => {
   const users = ["lluis", "pere", "agus", "bruno"];
 
