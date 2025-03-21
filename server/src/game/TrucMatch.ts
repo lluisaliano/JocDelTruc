@@ -225,7 +225,6 @@ export class TrucMatch {
       maPlayer: this.roundMaPlayer,
       trucWonLaps: this.trucWonLaps,
       turnQueue: this.turnQueue,
-      roundInfiniteQueue: this.roundInfiniteQueue,
     };
     return status;
   }

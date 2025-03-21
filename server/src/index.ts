@@ -216,7 +216,6 @@ wss.on("connection", (ws) => {
           responseMessage = {
             type: "startGameResponse",
             data: gameState, // Adding the required 'data' property
-            state: gameState,
             selfPlayerState: selfPlayerState,
           } as StartGameResponse;
 
