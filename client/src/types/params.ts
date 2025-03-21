@@ -9,6 +9,10 @@ export interface BoardProps {
   children?: React.ReactNode;
 }
 
+export interface ChildrenProps {
+  children?: React.ReactNode;
+}
+
 // Card Images Lazy Load Type
 type cardImages = Record<string, () => Promise<{ default: string }>>;
 

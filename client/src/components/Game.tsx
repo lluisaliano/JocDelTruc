@@ -9,6 +9,9 @@ import { Player } from "./gameComponents/Player";
 
 import { toast } from "react-toastify";
 import { WebSocketContext } from "../contexts/WebSocketContext";
+import { HeadMenu } from "./HeadMenu";
+
+import "../styles/Game.css";
 
 // Lazy Load Card Images and send it to Players component
 const cardImages = import.meta.glob<{ default: string }>(
@@ -109,8 +112,19 @@ export function Game({ setAppPage }: PageProps) {
     toast.success("Sessió Tancada");
   };
   return (
-    <>
-      <Board color={"#936846"}>
+    <div className="gameContainer">
+      <HeadMenu>
+        <h1>Truc Menorquí</h1>
+        <div className="sideButtons">
+          <button className="sessionButton" onClick={handleNewGame}>
+            Nova Partida
+          </button>
+          <button className="sessionButton" onClick={handleLogOut}>
+            Tancar Sessió
+          </button>
+        </div>
+      </HeadMenu>
+      <Board>
         <WebSocketContext.Provider value={wsRef ? wsRef : null}>
           <Player
             playerCards={
@@ -162,8 +176,6 @@ export function Game({ setAppPage }: PageProps) {
           ></Player>
         </WebSocketContext.Provider>
       </Board>
-      <button onClick={handleNewGame}>Nova Partida</button>
-      <button onClick={handleLogOut}>Tancar Sessió</button>
-    </>
+    </div>
   );
 }

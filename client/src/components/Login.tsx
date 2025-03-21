@@ -49,35 +49,37 @@ export function Login({ setAppPage }: PageProps) {
   };
 
   return (
-    <div className="loginWrapper">
-      <form className="loginForm" onSubmit={handleSubmit}>
-        <h2>Truc Menorquí</h2>
-        <div className="inputGroup">
-          <input
-            name="userName"
-            id="userName"
-            type="text"
-            placeholder=" "
-            value={formData.userName}
-            onChange={handleFormChange}
-            required
-          />
-          <label htmlFor="userName">Nom d'usuari</label>
-        </div>
-        <div className="inputGroup">
-          <input
-            name="password"
-            id="password"
-            type="password"
-            placeholder=" "
-            value={formData.password}
-            onChange={handleFormChange}
-            required
-          />
-          <label htmlFor="password">Contraseña</label>
-        </div>
-        <button type="submit">Iniciar Sessió</button>
-      </form>
+    <div className="backgroundLogin">
+      <div className="loginWrapper">
+        <form className="loginForm" onSubmit={handleSubmit}>
+          <h2>Truc Menorquí</h2>
+          <div className="inputGroup">
+            <input
+              name="userName"
+              id="userName"
+              type="text"
+              placeholder=" "
+              value={formData.userName}
+              onChange={handleFormChange}
+              required
+            />
+            <label htmlFor="userName">Nom d'usuari</label>
+          </div>
+          <div className="inputGroup">
+            <input
+              name="password"
+              id="password"
+              type="password"
+              placeholder=" "
+              value={formData.password}
+              onChange={handleFormChange}
+              required
+            />
+            <label htmlFor="password">Contraseña</label>
+          </div>
+          <button type="submit">Iniciar Sessió</button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -12,8 +12,8 @@
   --transition: 0.3s ease;
 }
 
-body {
-  background-image: url("../../public/GameImages/Background.png"); /* Ruta a tu imagen */
+.backgroundLogin {
+  background-image: url("/GameImages/Background.png"); /* Ruta a tu imagen */
   background-size: cover; /* Hace que la imagen cubra todo el fondo */
   background-position: center; /* Centra la imagen */
   background-repeat: no-repeat; /* Evita que la imagen se repita */
@@ -25,7 +25,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .loginWrapper {

@@ -1,4 +1,18 @@
+body {
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
 .container {
+  overflow: hidden;
+  z-index: -2;
+  margin-bottom: 0;
+  background-image: url("/GameImages/GameBackground.jpg");
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  min-height: 94dvh;
   display: grid;
   grid-template-areas:
     ".    top    ."
@@ -8,7 +22,6 @@
   grid-template-rows: auto 1fr auto; /* Tres filas */
   justify-content: space-between;
   align-content: space-between;
-  height: 95dvh;
   width: 100dvw;
   position: relative;
 }
@@ -101,4 +114,14 @@
   /* Reducir imágenes */
   vertical-align: middle;
   min-width: 4rem;
+}
+
+.tableImage {
+  z-index: -1;
+  position: absolute;
+  top: 11em;
+  left: 50%;
+  transform: translateX(-50%);
+  height: auto;
+  width: 85%;
 }

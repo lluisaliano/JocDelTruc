@@ -1,0 +1,11 @@
+/**
+.gameContainer {
+  z-index: -3;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+}
+*/
