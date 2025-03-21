@@ -603,20 +603,22 @@ export class TrucMatch {
     // TODO WE SHOULD USE RETURNS TO NOTIFY THIS
   }
 
-  // TODO THIS IS WRONG, SPECIALS CASE ARE NOT OK
   /**
    * This method will update match score
    * It will update the score depending on how the round was,
    * but it will not handle round logic and special cases
    *
    * TRUC
-   * SPECIAL CASE 1 OK: First lap tie -> second lap won by a team
-   * SPECIAL CASE 2 OK: First lap tie and second lap tie -> Third lap won by a team ->
-   * SPECIAL CASE 3 WRONG: tie again -> user who is 'mà'(the player who throws first card) wins
-   * SPECIAL CASE 4 OK: First lap won -> Second lap won   *
-   * SPECIAL CASE 5 OK: First lap win -> Second lap lost -> third lap tie -> wins team who won first lap
+   * #TODO CHANGE THIS DOCS TO NEW DOCUMENT (TRUCSPECIALCASES)
+   * SPECIAL CASE 1: First lap tie -> second lap won by a team
+   * SPECIAL CASE 2: First lap tie and second lap tie -> Third lap won by a team ->
+   * SPECIAL CASE 3: tie again -> user who is 'mà'(the player who throws first card) wins
+   * SPECIAL CASE 4: First lap won -> Second lap won   *
+   * SPECIAL CASE 5: First lap win -> Second lap lost -> third lap tie -> wins team who won first lap
    * SPECIAL CASE 6: tie on the 3 laps -> wins team which has the player who is 'mà'(the player who threw the first card
    * on the round)
+   *
+   * THIS METHOD HANDLES SPECIAL CASE 5 and SPECIAL CASE 6 LOGIC
    *
    * ENVIT
    * envit tie between two players -> wins player who is mà(the player who threw the its first card first)
@@ -644,15 +646,11 @@ export class TrucMatch {
     }
 
     /**
-     * SPECIAL CASE 3, SPECIAL CASE 4 AND SPECIAL CASE 5
+     * SPECIAL CASE 3 and SPECIAL CASE 4
      * To get the winner, we will check the winner of the first lap for SPECIAL CASE 3
-     * To get the winner for SPECIA CASE 4, we have to do the same (we could also check winner of second round)
+     * To get the winner for SPECIA CASEL 4, we have to do the same (we could also check winner of second round)
      */
-    if (
-      roundState === "SPECIAL_CASE_3" ||
-      roundState === "TEAM_WON_TWO_LAPS_IN_A_ROW" || //FIXME THIS AND THE BOTTOM CONDITION WERE THE SAME
-      roundState === "SPECIAL_CASE_4"
-    ) {
+    if (roundState === "SPECIAL_CASE_3" || roundState === "SPECIAL_CASE_4") {
       winnerTeam = this.trucWonLaps[0] as Team; // If we are here, we will always have a team not a tie
     }
 
@@ -673,15 +671,16 @@ export class TrucMatch {
         winnerTeam = this.team2;
       } else {
         /**
-         * SPECIAL CASE 5: If cardWinnedLaps of one of each team is bigger than 0,
-         * we have to check if the third lap has a tie. If it has, the winner will be the team which won the first lap
+         * SPECIAL CASE 5: If cardWinnedLaps of one of each team is bigger than 0
+         * (meaning that the other team also won more than 0 rounds because if we are here cardWinnedLapsTeam1 == cardWinedLapsTeam2),
+         * we have to check if the third lap has a tie. If it has, the winner will be the team which won the first lap.
          * In this case, there will always be a tie on the third lap, otherwise, we would not be inside this condition.
          */
         if (cardWinnedLapsTeam1 > 0) {
           winnerTeam = this.trucWonLaps[0] as Team;
         } else {
           /**
-           * SPECIAL CASE 6: If cardWinnedLaps of one of each team is 0, we will be in this case.
+           * SPECIAL CASE 6: If cardWinnedLaps of both teams is 0, we will be in this case.
            * The winner team will be the team of the player who is 'mà'
            * If we are in this condition, we just need to return the team of the player who is 'mà',
            * because if the cardWinnedLaps of both teams is different than 0, we would be on another condition
