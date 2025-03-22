@@ -3,16 +3,16 @@
   z-index: -1;
   position: absolute;
   top: 15dvh;
-  left: 52%;
+  left: 50%;
   transform: translateX(-50%);
   height: auto;
-  width: 270dvw;
+  width: 180dvh;
 }
 
 .container {
   overflow: hidden;
   z-index: 1;
-  margin-bottom: 0;
+  padding-bottom: 2rem;
   min-height: 94dvh;
   display: grid;
   grid-template-areas:
@@ -30,7 +30,6 @@
 .player b {
   font-size: 0.8rem;
   text-align: center;
-  margin: 0.5rem;
 }
 
 .top {
@@ -114,5 +113,103 @@
 .playerCardsDiv img {
   /* Reducir imágenes */
   vertical-align: middle;
-  min-width: 4rem;
+}
+
+.top img {
+  width: 5rem;
+}
+
+.left img {
+  width: 5rem;
+}
+.right img {
+  width: 5rem;
+}
+
+.bottom img {
+  width: 5rem;
+}
+
+@media (max-width: 768px) {
+  .tableImage-fondo {
+    width: 200dvh;
+  }
+
+  .container {
+    display: block;
+    overflow: hidden;
+    z-index: 1;
+    padding-bottom: 1rem;
+    min-height: 94dvh;
+    width: 100%;
+    position: relative;
+  }
+
+  .top {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column-reverse;
+  }
+
+  .right {
+    position: absolute;
+    top: 37%;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column-reverse;
+    width: fit-content;
+  }
+
+  .left {
+    position: absolute;
+    top: 37%;
+    left: 0;
+    transform: translateY(-50%);
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column-reverse;
+  }
+
+  .bottom {
+    position: absolute;
+    bottom: 10%;
+    width: auto;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 10rem;
+  }
+
+  .playerCardsContainer {
+    gap: 0.5em;
+  }
+
+  .top img {
+    width: 2rem;
+  }
+  .left img {
+    width: 2rem;
+  }
+
+  .right img {
+    width: 2rem;
+  }
+
+  .bottom img {
+    width: 5rem;
+  }
 }
