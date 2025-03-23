@@ -138,7 +138,8 @@ export function Game({ setAppPage }: PageProps) {
                     { id: "back_card" },
                   ]
             }
-            thrownCards={thrownPlayerCards.bottom}
+            //thrownCards={thrownPlayerCards.bottom}
+            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
             cardImages={cardImages}
             position="bottom"
             name={players[0]}
@@ -149,7 +150,8 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            thrownCards={thrownPlayerCards.top}
+            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
+            //thrownCards={thrownPlayerCards.top}
             cardImages={cardImages}
             position="top"
             name={players[1]}
@@ -160,7 +162,8 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            thrownCards={thrownPlayerCards.left}
+            //thrownCards={thrownPlayerCards.left}
+            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
             cardImages={cardImages}
             position="left"
             name={players[2]}
@@ -171,7 +174,8 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            thrownCards={thrownPlayerCards.right}
+            //thrownCards={thrownPlayerCards.right}
+            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
             cardImages={cardImages}
             position="right"
             name={players[3]}
