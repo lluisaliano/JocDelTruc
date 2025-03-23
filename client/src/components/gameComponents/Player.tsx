@@ -11,15 +11,10 @@ export function Player({
 }: PlayerProps) {
   return (
     <div className={"player " + `${position}`}>
-      <div className="playerCardsContainer">
-        <PlayerCards
-          position={position}
-          cardImages={cardImages}
-          cardsList={thrownCards}
-          numberOfCards={thrownCards.length} //TODO CHANGE THIS
-          view={"visible"} //TODO CHANGE THIS
-          type={"throw"}
-        ></PlayerCards>
+      <div className="playerBlock">
+        <p style={{ color: "white" }}>
+          <b>{name ? name : "Jugador"}</b>
+        </p>
         <PlayerCards
           position={position}
           cardImages={cardImages}
@@ -29,9 +24,14 @@ export function Player({
           type={"normal"}
         ></PlayerCards>
       </div>
-      <p style={{ color: "white" }}>
-        <b>{name ? name : "Jugador no conectat"}</b>
-      </p>
+      <PlayerCards
+        position={position}
+        cardImages={cardImages}
+        cardsList={thrownCards}
+        numberOfCards={thrownCards.length} //TODO CHANGE THIS
+        view={"visible"} //TODO CHANGE THIS
+        type={"throw"}
+      ></PlayerCards>
     </div>
   );
 }

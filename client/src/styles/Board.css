@@ -34,71 +34,28 @@
 
 .top {
   grid-area: top;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column-reverse;
 }
 
 .right {
   grid-area: right;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column-reverse;
   gap: 3.2rem;
 }
 
 .left {
   grid-area: left;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column-reverse;
   gap: 3.2rem;
 }
 
 .bottom {
   grid-area: bottom;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
 }
 
-.leftCards {
-  display: flex;
-  gap: 5px;
-  flex-flow: row;
-  transform: rotate(90deg);
-}
-
-.rightCards {
-  display: flex;
-  gap: 5px;
-  flex-flow: row;
-  transform: rotate(-90deg);
-}
-
-.topCards {
-  display: flex;
-  gap: 5px;
-  flex-flow: row;
-}
-
-.bottomCards {
-  display: flex;
-  gap: 5px;
-  flex-flow: row;
-}
-
-.playerCardsContainer {
-  display: flex;
-  flex-flow: column;
+.playerCardsContainerNormal {
   gap: 2rem;
 }
 
 .playerCardsDiv button {
+  width: fit-content;
   cursor: pointer;
   border: none;
   border-radius: 6px;
@@ -146,70 +103,189 @@
   }
 
   .top {
+    display: flex;
+    justify-content: center;
+    align-self: center;
     position: absolute;
     left: 0;
     right: 0;
     width: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column-reverse;
   }
 
   .right {
     position: absolute;
-    top: 37%;
+    top: 37dvh;
     right: 0;
     transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column-reverse;
-    width: fit-content;
+    width: 50dvw;
+    height: 25dvh;
   }
 
   .left {
     position: absolute;
-    top: 37%;
+    top: 37dvh;
     left: 0;
     transform: translateY(-50%);
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column-reverse;
+    width: 50dvw;
+    height: 25dvh;
   }
 
   .bottom {
+    display: flex;
+    justify-content: center;
+    align-self: center;
     position: absolute;
     bottom: 10%;
     width: auto;
     left: 0;
     right: 0;
     margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
     height: 10rem;
   }
 
-  .playerCardsContainer {
-    gap: 0.5em;
+  /** PLAYER POSITIONING **/
+  .playerBlock {
+    text-align: center;
+  }
+
+  .right .playerBlock {
+    position: absolute;
+    top: 0;
+    right: 5dvw;
+  }
+
+  .left .playerBlock {
+    position: absolute;
+    top: 0;
+    left: 5dvw;
   }
 
   .top img {
-    width: 2rem;
+    width: 1rem;
   }
   .left img {
-    width: 2rem;
+    width: 1rem;
   }
 
   .right img {
-    width: 2rem;
+    width: 1rem;
   }
 
+  /** CARDS POSITIONING **/
   .bottom img {
     width: 5rem;
+  }
+
+  .normal button {
+    position: absolute;
+  }
+
+  /** Right cards */
+  .rightCards.normal {
+    position: relative;
+    height: 3dvh;
+  }
+
+  .rightCards.normal button:nth-child(1) {
+    transform: rotate(-10deg);
+    left: 10%;
+    top: 21%;
+    z-index: 1;
+  }
+
+  .rightCards.normal button:nth-child(2) {
+    transform: rotate(0deg);
+    left: 30%;
+    top: 18%;
+    z-index: 2;
+  }
+
+  .rightCards.normal button:nth-child(3) {
+    transform: rotate(10deg);
+    left: 50%;
+    top: 22%;
+    z-index: 3;
+  }
+
+  /** Left cards */
+  .leftCards.normal {
+    position: relative;
+    height: 3dvh;
+  }
+
+  .leftCards.normal button:nth-child(1) {
+    transform: rotate(-10deg);
+    left: 10%;
+    top: 21%;
+    z-index: 1;
+  }
+
+  .leftCards.normal button:nth-child(2) {
+    transform: rotate(0deg);
+    left: 30%;
+    top: 18%;
+    z-index: 2;
+  }
+
+  .leftCards.normal button:nth-child(3) {
+    transform: rotate(10deg);
+    left: 50%;
+    top: 22%;
+    z-index: 3;
+  }
+
+  /** Top cards */
+  .topCards.normal {
+    position: relative;
+    height: 3dvh;
+  }
+
+  .topCards.normal button:nth-child(1) {
+    transform: rotate(-10deg);
+    left: 10%;
+    top: 21%;
+    z-index: 1;
+  }
+
+  .topCards.normal button:nth-child(2) {
+    transform: rotate(0deg);
+    left: 30%;
+    top: 18%;
+    z-index: 2;
+  }
+
+  .topCards.normal button:nth-child(3) {
+    transform: rotate(10deg);
+    left: 50%;
+    top: 22%;
+    z-index: 3;
+  }
+
+  /** Bottom cards */
+  .bottomCards.normal {
+    position: relative;
+    height: 15dvh;
+    width: 40dvw;
+  }
+
+  .bottomCards.normal button:nth-child(1) {
+    transform: rotate(-10deg);
+    left: 0%;
+    top: 9%;
+    z-index: 1;
+  }
+
+  .bottomCards.normal button:nth-child(2) {
+    transform: rotate(0deg);
+    left: 30%;
+    top: 6%;
+    z-index: 2;
+  }
+
+  .bottomCards.normal button:nth-child(3) {
+    transform: rotate(10deg);
+    left: 60%;
+    top: 10%;
+    z-index: 3;
   }
 }
