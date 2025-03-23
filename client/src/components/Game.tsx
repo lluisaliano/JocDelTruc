@@ -12,6 +12,7 @@ import { WebSocketContext } from "../contexts/WebSocketContext";
 import { HeadMenu } from "./HeadMenu";
 
 import "../styles/Game.css";
+import { FooterMenu } from "./FooterMenu";
 
 // Lazy Load Card Images and send it to Players component
 const cardImages = import.meta.glob<{ default: string }>(
@@ -182,6 +183,9 @@ export function Game({ setAppPage }: PageProps) {
           ></Player>
         </WebSocketContext.Provider>
       </Board>
+      <FooterMenu>
+        <h1>TRUC BUTTONS</h1>
+      </FooterMenu>
     </div>
   );
 }

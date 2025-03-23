@@ -309,8 +309,10 @@
   }
 
   /** THROWN CARDS **/
-  .throw button {
-    position: absolute;
+  .throw img {
+    /** #TODO ADD CONTAINER TO IMG AND APPLY TRANSOFMRATION TO CONTAINER*/
+    transform: perspective(1cm) rotateX(5deg);
+    transform-origin: bottom;
   }
 
   /** Right cards */
