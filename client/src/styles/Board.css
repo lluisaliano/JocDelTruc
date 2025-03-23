@@ -88,8 +88,9 @@
 }
 
 @media (max-width: 768px) {
-  .tableImage-fondo {
-    width: 200dvh;
+  .tableImage {
+    width: 180dvh;
+    top: 15dvh;
   }
 
   .container {
@@ -107,6 +108,7 @@
     justify-content: center;
     align-self: center;
     position: absolute;
+    top: 7dvh;
     left: 0;
     right: 0;
     width: auto;
@@ -140,7 +142,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    height: 10rem;
+    height: 18rem;
   }
 
   /** PLAYER POSITIONING **/
@@ -160,22 +162,37 @@
     left: 5dvw;
   }
 
-  .top img {
+  .bottom .playerBlock {
+    height: 100%;
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  /** PLAYER CARDS IMAGES **/
+  /** NORMAL CARDS **/
+  .top .normal img {
     width: 1rem;
   }
-  .left img {
+  .left .normal img {
     width: 1rem;
   }
 
-  .right img {
+  .right .normal img {
     width: 1rem;
+  }
+
+  .bottom .normal img {
+    width: 8rem;
+  }
+
+  /** THROWN CARDS **/
+  .throw img {
+    width: 3rem;
   }
 
   /** CARDS POSITIONING **/
-  .bottom img {
-    width: 5rem;
-  }
-
+  /** NORMAL CARDS **/
   .normal button {
     position: absolute;
   }
@@ -263,15 +280,17 @@
 
   /** Bottom cards */
   .bottomCards.normal {
-    position: relative;
+    position: absolute;
+    top: 40%;
+    transform: translateX(-50%);
     height: 15dvh;
     width: 40dvw;
   }
 
   .bottomCards.normal button:nth-child(1) {
     transform: rotate(-10deg);
-    left: 0%;
-    top: 9%;
+    left: -30%;
+    top: 13%;
     z-index: 1;
   }
 
@@ -284,8 +303,47 @@
 
   .bottomCards.normal button:nth-child(3) {
     transform: rotate(10deg);
-    left: 60%;
-    top: 10%;
+    left: 90%;
+    top: 13%;
     z-index: 3;
+  }
+
+  /** THROWN CARDS **/
+  .throw button {
+    position: absolute;
+  }
+
+  /** Right cards */
+  .rightCards.throw {
+    top: 12dvh;
+    left: 20%;
+    position: absolute;
+    height: 3dvh;
+  }
+
+  /** Left cards */
+  .leftCards.throw {
+    top: 12dvh;
+    right: 20%;
+    position: absolute;
+    height: 3dvh;
+  }
+
+  /** Bottom cards */
+  .bottomCards.throw {
+    top: 0dvh;
+    right: 50%;
+    transform: translateX(50%);
+    position: absolute;
+    height: 3dvh;
+  }
+
+  /** Top cards */
+  .topCards.throw {
+    top: 13dvh;
+    right: 50%;
+    transform: translateX(50%);
+    position: absolute;
+    height: 3dvh;
   }
 }

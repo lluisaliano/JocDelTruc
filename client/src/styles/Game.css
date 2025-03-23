@@ -1,9 +1,12 @@
 .gameContainer {
-  height: 100%;
+  top: 0;
+  left: 0;
+  height: 120dvh;
   width: 100%;
   z-index: 1;
   background-image: url("/GameImages/GameBackground.jpg");
   background-size: cover;
-  background-position: top;
+  background-position: center -10dvh;
   background-repeat: no-repeat;
+  position: fixed;
 }
