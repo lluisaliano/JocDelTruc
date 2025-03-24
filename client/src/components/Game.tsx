@@ -149,12 +149,7 @@ export function Game({ setAppPage }: PageProps) {
                     { id: "back_card" },
                   ]
             }
-            //thrownCards={thrownPlayerCards.bottom}
-            thrownCards={[
-              { id: "un_espasses" },
-              { id: "set_oros" },
-              { id: "set_bastos" },
-            ]}
+            thrownCards={thrownPlayerCards.bottom}
             cardImages={cardImages}
             position="bottom"
             name={players[0]}
@@ -165,8 +160,7 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            thrownCards={[{ id: "madona" }, { id: "amo" }, { id: "tres_oros" }]}
-            //thrownCards={thrownPlayerCards.top}
+            thrownCards={thrownPlayerCards.top}
             cardImages={cardImages}
             position="top"
             name={players[1]}
@@ -177,12 +171,7 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            //thrownCards={thrownPlayerCards.left}
-            thrownCards={[
-              { id: "amo" },
-              { id: "un_copes" },
-              { id: "un_bastos" },
-            ]}
+            thrownCards={thrownPlayerCards.left}
             cardImages={cardImages}
             position="left"
             name={players[2]}
@@ -193,12 +182,7 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            //thrownCards={thrownPlayerCards.right}
-            thrownCards={[
-              { id: "cinc_oros" },
-              { id: "dos_espasses" },
-              { id: "quatre_espasses" },
-            ]}
+            thrownCards={thrownPlayerCards.right}
             cardImages={cardImages}
             position="right"
             name={players[3]}
