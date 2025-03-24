@@ -158,8 +158,10 @@ export class TrucMatch {
     falta_envit: this.WIN_SCORE,
   };
 
+  private matchId;
   // TODO Constructor could rely on some methods
-  constructor(usersNames: string[]) {
+  constructor(usersNames: string[], id: string) {
+    this.matchId = id;
     // This currently supports 4 users matches, here we allow less for testing
     if (usersNames.length > 4 || usersNames.length === 0) {
       throw new Error("THERE SHOULD BE 4 USERS OR MORE THAN 0");
@@ -1083,5 +1085,13 @@ export class TrucMatch {
     teamBestTrucPlayer.cardValue = maxCardValueKey;
 
     return teamBestTrucPlayer;
+  }
+
+  public getMatchId() {
+    return this.matchId;
+  }
+
+  public getNumPlayers() {
+    return this.players.length;
   }
 }

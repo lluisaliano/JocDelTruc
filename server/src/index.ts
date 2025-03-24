@@ -1,7 +1,7 @@
 import express, { response } from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import * as dotenv from "dotenv";
 
 import { Users } from "./types/game.ts";
@@ -16,6 +16,7 @@ import {
   StartGameResponse,
   StateResponse,
 } from "./types/messages.ts";
+import { GameManager } from "./GameManager.ts";
 
 dotenv.config();
 
@@ -68,6 +69,16 @@ app.post("/login", (req, res) => {
   }
 });
 
+// Game Rooms Route
+app.get("/gameRooms", (req, res) => {
+  const gameRooms = gameManager.getAllMatchesIds().map((matchId, index) => ({
+    name: "Sala " + index,
+    id: matchId,
+  }));
+
+  res.json(gameRooms);
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Running on http://localhost:${PORT}`);
@@ -84,20 +95,24 @@ const wss = new WebSocketServer({ port: WS_PORT });
  * - userName
  * - socket
  */
-let users: Users = [];
+let users: Users = new Map();
 
 /**
  * This array will store trucMatches
  * TODO It currently only stores one trucMatch.
  */
 // This contains a truc match
-let trucMatch: TrucMatch | null = null;
+let gameManager = new GameManager();
 
 // This conaints messages and userName so we can access from everywhere
 let message: Message;
 let messageUserName: string;
 
-wss.on("connection", (ws) => {
+wss.on("connection", (ws: WebSocket) => {
+  // Save user id
+  const userId = crypto.randomUUID();
+  users.set(userId, { userName: "", socket: ws, connectedMatchId: "" });
+
   // Show any possible error
   ws.on("error", console.error);
 
@@ -106,15 +121,12 @@ wss.on("connection", (ws) => {
 
   ws.on("close", (code, reason) => {
     // Remove user from users array
-    users = users.filter((user) => {
-      return user.socket !== ws;
-    });
+    const user = users.get(userId);
+    users.delete(userId);
 
-    // Check if truc user is in a match and if it is, delete from players
-    // TODO this should do for match of matches check players... when matches is implemented
-    const player = trucMatch?.getPlayerFromUser(messageUserName);
-    if (player) {
-      trucMatch?.deletePlayer(player);
+    if (user?.connectedMatchId) {
+      const trucMatch = gameManager.getMatch(user?.connectedMatchId);
+      trucMatch!.deletePlayer(trucMatch!.getPlayerFromUser(user.userName)!);
     }
     console.log(reason.toString("utf8"));
   });
@@ -143,12 +155,6 @@ wss.on("connection", (ws) => {
     // Get the username of the user who sended the message
     messageUserName = decodedToken.userName;
 
-    // TODO THIS SHOULD BE CHANGED TO SPECIFY NUMBER OF USERS
-    // If we have more than 4 users quit
-    if (users.length >= 4) {
-      ws.close(1000, "There cannot play more than 4 users");
-    }
-
     //This will contain the Response Message
     let responseMessage: ResponseMessage;
 
@@ -156,54 +162,30 @@ wss.on("connection", (ws) => {
     switch (message.type) {
       // If message is a firstConnection
       case "firstConnection":
-        // If user is already connected quit his old session and start a new one
-        const existinUser = users.find(
-          (user) => user.userName === messageUserName
-        );
-        if (existinUser) {
-          // Close Connection
-          existinUser.socket.close(
-            1000,
-            "New Session of your user has been started"
-          );
-          // Remove from users array
-          users = users.filter((user) => {
-            return user.userName !== messageUserName;
-          });
-        }
+        // User will never be undefined, because we generate an id for each user in every connection
+        const user = users.get(userId);
         // We push user to users array
-        users.push({ userName: messageUserName, socket: ws });
-
-        // TODO This is not working well, when a user joins, user name is not showed to already joined users
-        // TODO Maybe it is a client error
-        // We send new user's name to users
-        responseMessage = {
-          type: "newPlayerResponse",
-          userName: messageUserName,
-          self: false,
-        } as NewPlayerResponse;
-        for (const user of users) {
-          // If player is sending his own self, we set property self to true
-          //TODO We should inclue a team property to send userName of the team
-          // TODO define Player.fing function as getPlayer method...
-          if (user.userName === messageUserName) {
-            user.socket.send(
-              JSON.stringify({ ...responseMessage, self: true })
-            );
-          } else {
-            user.socket.send(JSON.stringify(responseMessage));
-          }
-        }
+        user!.userName = messageUserName;
+        user!.socket = ws;
 
         return;
       case "startGame": {
+        const matchId = gameManager.createMatch();
+        //TODO CREATE MATCH ROOMS
+
+        const trucMatch = gameManager.getMatch(matchId)!;
+
         // If there are not four users, game should not start...
-        // TODO THIS SHOULD BE IMPROVED...
-        if (users.length !== 4) {
-          console.log("THERE ARE NOT 4 USERS");
+        if (trucMatch.getNumPlayers() !== 4) {
+          ws.send(
+            JSON.stringify({
+              type: "errorResponse",
+              errorMessage: "There are not 4 users",
+            } as ErrorResponse)
+          );
+          console.log("THERE ARE NOT 4 USERS on match " + matchId);
+          return;
         }
-        // Create new match  sending userNames
-        trucMatch = new TrucMatch(users.map((p) => p.userName));
 
         const gameState = trucMatch.getState();
 

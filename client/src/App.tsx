@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { EntryPage } from "./components/EntryPage";
 import { Game } from "./components/Game";
-import { Leaderboard } from "./components/Leaderboard";
+import { GameManager } from "./components/GameManager";
 
 import { appPageType } from "./types/params";
 import { Authentication } from "./apis/auth";
@@ -20,8 +20,8 @@ function App() {
 
   // Load corret page
   switch (appPage) {
-    case "leaderBoard":
-      page = <Leaderboard></Leaderboard>;
+    case "gameManager":
+      page = <GameManager setAppPage={setAppPage}></GameManager>;
       break;
     case "game":
       page = <Game setAppPage={setAppPage}></Game>;

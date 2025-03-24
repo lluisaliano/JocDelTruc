@@ -14,6 +14,7 @@ export function handleMessages(
     setCurrentPlayerCards,
     setPlayers,
     setThrownPlayerCards,
+    setScore,
   }: HandleMssagesSetterProps
 ) {
   // First we parse event data
@@ -82,7 +83,12 @@ export function handleMessages(
           left: thrownCards[3] ? thrownCards[3] : [],
         };
       });
-      return;
+      setScore(() => {
+        return {
+          team1: castedMessage.state.score.team1,
+          team2: castedMessage.state.score.team2,
+        };
+      });
     }
   }
 }

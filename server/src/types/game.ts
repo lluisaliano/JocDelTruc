@@ -48,9 +48,10 @@ type PlayerPosition = "top" | "bottom" | "left" | "right";
 export interface User {
   userName: string;
   socket: WebSocket;
+  connectedMatchId?: string;
 }
 
-export type Users = User[];
+export type Users = Map<string, User>;
 
 // A player can have 0, 1, 2, 3 cards
 export type CardsOfPlayer = Card[];

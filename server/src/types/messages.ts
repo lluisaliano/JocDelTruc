@@ -12,6 +12,7 @@ export interface Message {
     | "gameState";
   token: string;
   data?: any;
+  id?: string;
 }
 
 // This may be unnecessary
@@ -40,6 +41,7 @@ export interface ResponseMessage {
     | "stateUpdate";
   data: any;
   selfPlayerState?: Player;
+  id?: string;
 }
 
 //TODO TEMPORARY TYPE USING gameState

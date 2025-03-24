@@ -1,4 +1,4 @@
-export type appPageType = "entryPage" | "game" | "leaderBoard";
+export type appPageType = "entryPage" | "game" | "gameManager";
 
 export interface PageProps {
   setAppPage: React.Dispatch<React.SetStateAction<appPageType>>;
