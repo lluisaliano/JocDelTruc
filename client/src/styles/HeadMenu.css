@@ -4,10 +4,9 @@
   position: relative;
   top: 0;
   width: 100dvw;
-  place-content: center;
-  height: 6dvh;
+  height: 4dvh;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 2fr 2fr 1fr;
   grid-template-rows: auto;
 }
 
@@ -16,7 +15,7 @@
   display: flex;
   flex-flow: row;
   gap: 0.5em;
-  grid-column: 2 / 4;
+  grid-column: 3 / 4;
   margin-right: 0.5rem;
 }
 
@@ -61,4 +60,25 @@
   font-family: "Raleway";
   font-size: 1em;
   text-align: left;
+}
+
+.score {
+  display: flex;
+  gap: 10px;
+  top: 40%;
+  left: 50%;
+  position: absolute;
+  font-size: 10px;
+}
+
+.score div {
+  display: inline-block;
+  color: white;
+}
+
+.score h3 {
+  display: inline;
+}
+.score p {
+  display: inline;
 }

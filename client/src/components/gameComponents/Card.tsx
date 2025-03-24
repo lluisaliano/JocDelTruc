@@ -42,7 +42,7 @@ export function Card({ id, cardImages, type }: CardProps) {
     type === "normal" ? (
       <button onClick={handleCardPlay}>{cardImage}</button>
     ) : (
-      cardImage
+      <div>{cardImage}</div>
     );
 
   return <>{cardComponent}</>;

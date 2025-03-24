@@ -9,6 +9,11 @@ export interface BoardProps {
   children?: React.ReactNode;
 }
 
+export interface GameButtonProps {
+  type: string;
+  onClick: React.EventHandler<React.MouseEvent>;
+}
+
 export interface ChildrenProps {
   children?: React.ReactNode;
 }

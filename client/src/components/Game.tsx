@@ -13,6 +13,8 @@ import { HeadMenu } from "./HeadMenu";
 
 import "../styles/Game.css";
 import { FooterMenu } from "./FooterMenu";
+import { GameButton } from "./gameComponents/GameButton";
+import { Score } from "./gameComponents/Score";
 
 // Lazy Load Card Images and send it to Players component
 const cardImages = import.meta.glob<{ default: string }>(
@@ -44,6 +46,12 @@ export function Game({ setAppPage }: PageProps) {
   // TODO TEAM SHOULD GO ON TOP
   const [players, setPlayers] = useState<string[]>([]);
 
+  // SCORE
+  const [score, setScore] = useState<Record<"team1" | "team2", number>>({
+    team1: 0,
+    team2: 0,
+  });
+
   useEffect(() => {
     console.log("Starting Socket Connection");
     const ws = new WebSocket(API_URL);
@@ -68,6 +76,7 @@ export function Game({ setAppPage }: PageProps) {
         setCurrentPlayerCards,
         setPlayers,
         setThrownPlayerCards,
+        setScore,
       });
     });
 
@@ -118,9 +127,10 @@ export function Game({ setAppPage }: PageProps) {
         <div className="titleContainer">
           <h1>Truc Menorquí</h1>
         </div>
+        <Score score={score} />
         <div className="sideButtons">
           <button className="sessionButton" onClick={handleNewGame}>
-            Començar Partida
+            Start
           </button>
           <button className="sessionButton" onClick={handleLogOut}>
             <img src="/GameImages/leaveIcon.svg" alt="Log out button" />
@@ -140,7 +150,11 @@ export function Game({ setAppPage }: PageProps) {
                   ]
             }
             //thrownCards={thrownPlayerCards.bottom}
-            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
+            thrownCards={[
+              { id: "un_espasses" },
+              { id: "set_oros" },
+              { id: "set_bastos" },
+            ]}
             cardImages={cardImages}
             position="bottom"
             name={players[0]}
@@ -151,7 +165,7 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
               { id: "back_card" },
             ]}
-            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
+            thrownCards={[{ id: "madona" }, { id: "amo" }, { id: "tres_oros" }]}
             //thrownCards={thrownPlayerCards.top}
             cardImages={cardImages}
             position="top"
@@ -164,7 +178,11 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
             ]}
             //thrownCards={thrownPlayerCards.left}
-            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
+            thrownCards={[
+              { id: "amo" },
+              { id: "un_copes" },
+              { id: "un_bastos" },
+            ]}
             cardImages={cardImages}
             position="left"
             name={players[2]}
@@ -176,7 +194,11 @@ export function Game({ setAppPage }: PageProps) {
               { id: "back_card" },
             ]}
             //thrownCards={thrownPlayerCards.right}
-            thrownCards={[{ id: "amo" }, { id: "amo" }, { id: "amo" }]}
+            thrownCards={[
+              { id: "cinc_oros" },
+              { id: "dos_espasses" },
+              { id: "quatre_espasses" },
+            ]}
             cardImages={cardImages}
             position="right"
             name={players[3]}
@@ -184,7 +206,35 @@ export function Game({ setAppPage }: PageProps) {
         </WebSocketContext.Provider>
       </Board>
       <FooterMenu>
-        <h1>TRUC BUTTONS</h1>
+        {/** #TODO THIS WILL HAVE TO BE A BUTTON MAP OR ARRAY */}
+        <GameButton
+          type="Truc"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="Envit"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="Retruc"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="Renvit"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="Vull"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="No Vull"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
+        <GameButton
+          type="MAZO"
+          onClick={() => console.log("Truc clicked")}
+        ></GameButton>
       </FooterMenu>
     </div>
   );

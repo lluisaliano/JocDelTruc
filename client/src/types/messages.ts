@@ -7,6 +7,9 @@ export interface HandleMssagesSetterProps {
   >;
   setPlayers: React.Dispatch<React.SetStateAction<string[]>>;
   setThrownPlayerCards: React.Dispatch<React.SetStateAction<ThrownPlayerCards>>;
+  setScore: React.Dispatch<
+    React.SetStateAction<Record<"team1" | "team2", number>>
+  >;
 }
 
 // RECIEVED MESSAGES

@@ -1,0 +1,14 @@
+.footContainer {
+  height: 10dvh;
+}
+
+.footContainer .gameButton {
+  font-size: 15px;
+  margin: 2px;
+  text-transform: uppercase;
+  background-color: rgb(112, 132, 223);
+  border: 1px solid black;
+  border-radius: 12px;
+  padding: 7px;
+  color: white;
+}
