@@ -8,26 +8,34 @@ const TOKEN_KEY = "jwt";
 
 export class Authentication {
   static async getToken(authData?: AuthenticationData) {
-    if (localStorage.getItem(TOKEN_KEY) || !authData) {
-      return localStorage.getItem(TOKEN_KEY);
+    const existingToken = localStorage.getItem(TOKEN_KEY);
+    if (existingToken || !authData) {
+      return existingToken;
     }
+    // We will cancel fetch if 5 seconds have passed
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(authData),
+      signal: controller.signal,
     });
-
-    // Parse the response
-    const data = await response.json();
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.log(data.responseMessage);
-      return Promise.reject(data.responseMessage);
+      const message = await response.json();
+      if (message) {
+        return Promise.reject("Error al Iniciar Sesió");
+      } else {
+        return Promise.reject(message.responseMessage);
+      }
     }
 
-    const { responseMessage, token } = data;
+    const { responseMessage, token } = await response.json();
     localStorage.setItem(TOKEN_KEY, token);
     return responseMessage;
   }

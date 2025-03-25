@@ -24,8 +24,7 @@ export function Login({ setAppPage }: PageProps) {
         // data property gets message from rejected o settled (Read React-toastify docs)
         success: {
           render({ data }) {
-            //TODO SETAPPPAGE SHOULD BE CALLED HERE
-
+            setAppPage("gameManager");
             return `${data}`;
           },
         },
@@ -36,7 +35,6 @@ export function Login({ setAppPage }: PageProps) {
         },
       })
       .catch((e) => console.log(e)); // This will jump if server is down or unreachable
-    setAppPage("gameManager");
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
