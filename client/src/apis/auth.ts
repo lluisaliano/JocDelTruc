@@ -29,8 +29,6 @@ export class Authentication {
     if (!response.ok) {
       const message = await response.json();
       if (message) {
-        return Promise.reject("Error al Iniciar Sesió");
-      } else {
         return Promise.reject(message.responseMessage);
       }
     }

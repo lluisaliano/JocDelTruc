@@ -53,13 +53,15 @@ export class GameManager {
     if (!room) {
       return false;
     }
-    const users = room.connectedUsers;
-    this.rooms.set(roomId, {
-      ...room,
-      connectedUsers: [...users, [user, client]],
-    });
 
-    if (users.length === 4) {
+    const updatedRoom: RoomData = {
+      ...room,
+      connectedUsers: [...room.connectedUsers, [user, client]],
+    };
+    this.rooms.set(roomId, updatedRoom);
+
+    //TODO CHANGE THIS TO 4, JUST FOR TESTING
+    if (updatedRoom.connectedUsers.length === 2) {
       this.startMatch(roomId);
     }
 
@@ -95,7 +97,8 @@ export class GameManager {
     );
     this.rooms.set(roomId, { ...room, trucMatch: match, visible: false });
     this.rooms.get(roomId)!.connectedUsers.forEach((user) => {
-      user[1].send({ type: "gameStart", id: roomId });
+      user[1].write(`event: gameStart\n`);
+      user[1].write("data: " + roomId + "\n\n");
     });
   }
 

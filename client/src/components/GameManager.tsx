@@ -25,7 +25,7 @@ export function GameManager({ setAppPage, setRoomId }: PageProps) {
     });
 
     eventSource.addEventListener("gameStart", (event) => {
-      const data = JSON.parse(event.data);
+      const data = event.data;
       setRoomId(data.roomId);
       setAppPage("game");
     });
