@@ -1,4 +1,4 @@
-import express, { response } from "express";
+import express, { request, response } from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { WebSocketServer, WebSocket } from "ws";
@@ -75,19 +75,37 @@ app.post("/login", (req, res) => {
 });
 
 // Game Rooms Routes
+// We store clients to do a Server sent events to update the game rooms
+const clients = new Set<typeof response>();
 app.get("/gamerooms", (req, res) => {
-  let gameRooms = [];
-  for (const gameRoom of gameManager.getAllRooms()) {
-    gameRooms.push({
-      id: gameRoom[0],
-      visible: gameRoom[1].visible,
-      creatorUser: gameRoom[1].creatorUserName,
-      connectedUsers: gameRoom[1].connectedUsers,
-    });
-  }
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
-  res.json(gameRooms);
+  // Send rooms to client for first time
+  res.write("data: " + JSON.stringify(gameManager.getAllRooms()) + "\n\n");
+
+  res.write("\n"); // Mantén la conexión abierta
+  res.write(`retry: 5000\n`);
+  clients.add(res);
+
+  req.on("close", () => {
+    clients.delete(res);
+  });
 });
+
+// Send rooms to all clients, we will use this functioni after each POST on /gamerooms
+function sendRoomsToAllClients() {
+  let gameRooms = gameManager.getAllRooms();
+  for (const client of clients) {
+    try {
+      client.write(`data: ${JSON.stringify(gameRooms)}\n\n`);
+    } catch (error) {
+      console.error("Error al enviar a cliente SSE:", error);
+      clients.delete(client);
+    }
+  }
+}
 
 //TODO User should only be able to create one ROOM, add Authentication
 app.post("/gamerooms", (req, res) => {
@@ -130,6 +148,7 @@ app.post("/gamerooms", (req, res) => {
   } else {
     res.json({ errorMessage: "Invalid request" });
   }
+  sendRoomsToAllClients();
 });
 
 // Start Server

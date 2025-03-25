@@ -7,7 +7,7 @@ const API_URL = "http://localhost:3000/gamerooms";
 interface GameRoom {
   id: string;
   visible: boolean;
-  creatorUser: string;
+  creatorUserName: string;
   connectedUsers: string[];
 }
 
@@ -15,25 +15,22 @@ export function GameManager({ setAppPage }: PageProps) {
   const [gameRooms, setGameRooms] = useState<GameRoom[]>();
   const userName = Authentication.getUserName();
 
-  // Fetch game rooms
-  //TODO User should now if he created or joined a room, to show correct buttons
+  // Using EventSource to poll gameRooms
   useEffect(() => {
-    const controller = new AbortController();
+    const eventSource = new EventSource(API_URL);
 
-    const fetchData = async () => {
-      const response = await fetch(API_URL, {
-        signal: controller.signal,
-      });
-      const json = await response.json();
-      setGameRooms(json);
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setGameRooms(data);
     };
 
-    fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+    eventSource.onerror = (err) => {
+      console.error("SSE error:", err);
+      eventSource.close(); // opcional: reconectar después de un tiempo
+    };
 
     return () => {
-      clearInterval(intervalId);
-      controller.abort();
+      eventSource.close();
     };
   }, []);
 
@@ -94,7 +91,7 @@ export function GameManager({ setAppPage }: PageProps) {
           );
         return (
           <div key={room.id}>
-            <h2>{room.creatorUser}</h2>
+            <h2>{room.creatorUserName}</h2>
             <p>Jugadors conectats: {room.connectedUsers.length}/4</p>
             {button}
           </div>

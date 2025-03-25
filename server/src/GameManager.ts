@@ -8,6 +8,13 @@ interface RoomData {
   trucMatch?: TrucMatch;
 }
 
+interface RoomsGetter {
+  id: string;
+  visible: boolean;
+  creatorUserName: string;
+  connectedUsers: string[];
+}
+
 export class GameManager {
   private rooms: Map<string, RoomData> = new Map();
 
@@ -92,8 +99,17 @@ export class GameManager {
     return this.rooms.get(id)?.trucMatch;
   }
 
-  public getAllRooms(): MapIterator<[string, RoomData]> {
-    return this.rooms.entries();
+  public getAllRooms(): RoomsGetter[] {
+    let gameRooms = [];
+    for (const gameRoom of this.rooms.entries()) {
+      gameRooms.push({
+        id: gameRoom[0],
+        visible: gameRoom[1].visible,
+        creatorUserName: gameRoom[1].creatorUserName,
+        connectedUsers: gameRoom[1].connectedUsers,
+      });
+    }
+    return gameRooms;
   }
 
   private userCantCreateOrJoin(user: string) {
