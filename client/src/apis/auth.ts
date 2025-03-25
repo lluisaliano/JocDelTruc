@@ -2,7 +2,7 @@ import { AuthenticationData } from "../types/api";
 
 // TODO THIS SEEMS UNREACHABLE FROM OUTSIDE LOCALHOST
 // TODO Define API URL
-const API_URL = "http://192.168.1.62:3000/login";
+const API_URL = "http://localhost:3000/login";
 
 const TOKEN_KEY = "jwt";
 
@@ -46,5 +46,15 @@ export class Authentication {
       headers: { Authorization: `Bearer ${token}` },
     });
     return await response.text();
+  }
+
+  static getUserName() {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      return "";
+    }
+    const [, payload] = token.split(".");
+    const data = JSON.parse(atob(payload));
+    return data.userName;
   }
 }

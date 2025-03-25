@@ -21,12 +21,6 @@ export interface FirstMessage extends Message {
   token: string;
 }
 
-// TODO sending this message should depend on how many users are connected...
-export interface StartGameMessage extends Message {
-  type: "startGame";
-  token: string;
-}
-
 export interface PlayerPlayMessage extends Message {
   data: { thrownCard: cardId };
 }

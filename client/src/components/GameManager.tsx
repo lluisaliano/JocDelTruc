@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
 import { PageProps } from "../types/params";
+import { Authentication } from "../apis/auth";
+
+const API_URL = "http://localhost:3000/gamerooms";
+
+interface GameRoom {
+  id: string;
+  visible: boolean;
+  creatorUser: string;
+  connectedUsers: string[];
+}
 
 export function GameManager({ setAppPage }: PageProps) {
-  const [gameRooms, setGameRooms] = useState<Record<"name" | "id", string>[]>();
+  const [gameRooms, setGameRooms] = useState<GameRoom[]>();
+  const userName = Authentication.getUserName();
 
   // Fetch game rooms
+  //TODO User should now if he created or joined a room, to show correct buttons
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchData = async () => {
-      const response = await fetch("http://localhost:3001/gameRooms", {
+      const response = await fetch(API_URL, {
         signal: controller.signal,
       });
       const json = await response.json();
@@ -25,26 +37,75 @@ export function GameManager({ setAppPage }: PageProps) {
     };
   }, []);
 
-  const handleClick = (id: string) => {
-    //TODO ROOM ID SHOULD BE CONTROLLED HERE
-    console.log(id);
-    setAppPage("game");
+  const handleLeaveClick = async (id: string) => {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "roomLeave",
+        userName: userName,
+        roomId: id,
+      }),
+    });
+    const json = await response.json();
+    console.log(json);
+  };
+  const handleJoinClick = async (id: string) => {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "roomJoin",
+        userName: userName,
+        roomId: id,
+      }),
+    });
+    const json = await response.json();
+    console.log(json);
+    //TODO OPEN WEBSOCKET WITH ROOM ID when room is full user should be transferred to game page
+    //setAppPage("game");
+  };
+
+  const handleCreateClick = async () => {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type: "roomCreate", userName: userName }),
+    });
+    const json = await response.json();
+    console.log(json);
+    //TODO OPEN WEBSOCKET WITH ROOM ID when room is full user should be transferred to game page
+    //setAppPage("game");
   };
 
   const rooms = gameRooms
-    ? gameRooms.map((room) => (
-        <div key={room.id}>
-          <h2>{room.name}</h2>
-          <p>Jugadors conectats: 1/4</p>
-          <button onClick={() => handleClick(room.id)}>Entrar</button>
-        </div>
-      ))
+    ? gameRooms.map((room) => {
+        const button =
+          room.connectedUsers.findIndex((user) => user === userName) === -1 ? (
+            <button onClick={() => handleJoinClick(room.id)}>Entrar</button>
+          ) : (
+            <button onClick={() => handleLeaveClick(room.id)}>Sortir</button>
+          );
+        return (
+          <div key={room.id}>
+            <h2>{room.creatorUser}</h2>
+            <p>Jugadors conectats: {room.connectedUsers.length}/4</p>
+            {button}
+          </div>
+        );
+      })
     : null;
 
   return (
     <div className="gameSelector">
       <div>
-        <button>Create Room</button>
+        <button onClick={handleCreateClick}>Create Room</button>
       </div>
       {rooms}
     </div>

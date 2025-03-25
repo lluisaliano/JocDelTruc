@@ -5,7 +5,11 @@ import { WebSocketServer, WebSocket } from "ws";
 import * as dotenv from "dotenv";
 
 import { Users } from "./types/game.ts";
-import { AuthenticationData, RegisteredUsers } from "./types/api.ts";
+import {
+  AuthenticationData,
+  RegisteredUsers,
+  RoomsRequest,
+} from "./types/api.ts";
 import { TrucMatch } from "./game/TrucMatch.ts";
 import {
   ErrorResponse,
@@ -17,6 +21,7 @@ import {
   StateResponse,
 } from "./types/messages.ts";
 import { GameManager } from "./GameManager.ts";
+import e from "express";
 
 dotenv.config();
 
@@ -69,14 +74,62 @@ app.post("/login", (req, res) => {
   }
 });
 
-// Game Rooms Route
-app.get("/gameRooms", (req, res) => {
-  const gameRooms = gameManager.getAllMatchesIds().map((matchId, index) => ({
-    name: "Sala " + index,
-    id: matchId,
-  }));
+// Game Rooms Routes
+app.get("/gamerooms", (req, res) => {
+  let gameRooms = [];
+  for (const gameRoom of gameManager.getAllRooms()) {
+    gameRooms.push({
+      id: gameRoom[0],
+      visible: gameRoom[1].visible,
+      creatorUser: gameRoom[1].creatorUserName,
+      connectedUsers: gameRoom[1].connectedUsers,
+    });
+  }
 
   res.json(gameRooms);
+});
+
+//TODO User should only be able to create one ROOM, add Authentication
+app.post("/gamerooms", (req, res) => {
+  const roomsRequest = req.body as RoomsRequest;
+  if (roomsRequest.type === "roomCreate") {
+    const roomId = gameManager.createRoom(roomsRequest.userName);
+    if (!roomId) {
+      res.status(400).json({ errorMessage: "UserAlreadyCreated" });
+      return;
+    }
+    res.json({ createdRoom: roomId });
+  } else if (roomsRequest.type === "roomJoin") {
+    const roomId = roomsRequest.roomId;
+    if (!roomId) {
+      res.status(400).json({ errorMessage: "No roomId provided" });
+      return;
+    }
+    const result = gameManager.joinRoom(roomId, roomsRequest.userName);
+    if (!result) {
+      res
+        .status(400)
+        .json({ errorMessage: "Room not found or user already joined" });
+      return;
+    }
+    res.json({ joinedRoom: roomId });
+  } else if (roomsRequest.type === "roomLeave") {
+    const roomId = roomsRequest.roomId;
+    if (!roomId) {
+      res.status(400).json({ errorMessage: "No roomId provided" });
+      return;
+    }
+    const result = gameManager.leaveRoom(roomId, roomsRequest.userName);
+    if (!result) {
+      res
+        .status(400)
+        .json({ errorMessage: "Room not found or user not in room" });
+      return;
+    }
+    res.json({ leftRoom: roomId });
+  } else {
+    res.json({ errorMessage: "Invalid request" });
+  }
 });
 
 // Start Server
@@ -169,43 +222,6 @@ wss.on("connection", (ws: WebSocket) => {
         user!.socket = ws;
 
         return;
-      case "startGame": {
-        const matchId = gameManager.createMatch();
-        //TODO CREATE MATCH ROOMS
-
-        const trucMatch = gameManager.getMatch(matchId)!;
-
-        // If there are not four users, game should not start...
-        if (trucMatch.getNumPlayers() !== 4) {
-          ws.send(
-            JSON.stringify({
-              type: "errorResponse",
-              errorMessage: "There are not 4 users",
-            } as ErrorResponse)
-          );
-          console.log("THERE ARE NOT 4 USERS on match " + matchId);
-          return;
-        }
-
-        const gameState = trucMatch.getState();
-
-        for (const user of users) {
-          // Get player that correspond to iteration user
-          const selfPlayerState = gameState.players.find(
-            (player) => player.userName === user.userName
-          );
-
-          responseMessage = {
-            type: "startGameResponse",
-            data: gameState, // Adding the required 'data' property
-            selfPlayerState: selfPlayerState,
-          } as StartGameResponse;
-
-          user.socket.send(JSON.stringify(responseMessage));
-        }
-
-        return;
-      }
       //TODO Add score,gamePhase... etc, this should be sent later, once score has been calculated
       // start score counter
       // send shuffled cards to player with response message type newGameResponse and send initial score

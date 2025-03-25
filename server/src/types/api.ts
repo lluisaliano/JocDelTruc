@@ -6,3 +6,10 @@ export interface AuthenticationData {
 export interface RegisteredUsers {
   [key: string]: string;
 }
+
+//Game Rooms
+export interface RoomsRequest {
+  type: "roomCreate" | "roomJoin" | "roomLeave";
+  userName: string;
+  roomId?: string;
+}
