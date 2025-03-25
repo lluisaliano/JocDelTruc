@@ -11,7 +11,7 @@ interface GameRoom {
   connectedUsers: string[];
 }
 
-export function GameManager({ setAppPage }: PageProps) {
+export function GameManager({ setAppPage, setRoomId }: PageProps) {
   const [gameRooms, setGameRooms] = useState<GameRoom[]>();
   const userName = Authentication.getUserName();
 
@@ -19,10 +19,16 @@ export function GameManager({ setAppPage }: PageProps) {
   useEffect(() => {
     const eventSource = new EventSource(API_URL);
 
-    eventSource.onmessage = (event) => {
+    eventSource.addEventListener("roomsData", (event) => {
       const data = JSON.parse(event.data);
       setGameRooms(data);
-    };
+    });
+
+    eventSource.addEventListener("gameStart", (event) => {
+      const data = JSON.parse(event.data);
+      setRoomId(data.roomId);
+      setAppPage("game");
+    });
 
     eventSource.onerror = (err) => {
       console.error("SSE error:", err);
@@ -32,7 +38,7 @@ export function GameManager({ setAppPage }: PageProps) {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [setAppPage, setRoomId]);
 
   const handleLeaveClick = async (id: string) => {
     const response = await fetch(API_URL, {
@@ -63,8 +69,6 @@ export function GameManager({ setAppPage }: PageProps) {
     });
     const json = await response.json();
     console.log(json);
-    //TODO OPEN WEBSOCKET WITH ROOM ID when room is full user should be transferred to game page
-    //setAppPage("game");
   };
 
   const handleCreateClick = async () => {
@@ -77,12 +81,13 @@ export function GameManager({ setAppPage }: PageProps) {
     });
     const json = await response.json();
     console.log(json);
-    //TODO OPEN WEBSOCKET WITH ROOM ID when room is full user should be transferred to game page
-    //setAppPage("game");
   };
 
   const rooms = gameRooms
     ? gameRooms.map((room) => {
+        if (room.visible === false) {
+          return null;
+        }
         const button =
           room.connectedUsers.findIndex((user) => user === userName) === -1 ? (
             <button onClick={() => handleJoinClick(room.id)}>Entrar</button>

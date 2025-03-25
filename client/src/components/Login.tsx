@@ -4,11 +4,11 @@ import { AuthenticationData } from "../types/api";
 import { Authentication } from "../apis/auth";
 import { toast } from "react-toastify";
 
-import { PageProps } from "../types/params";
+import { EntryPageProps } from "../types/params";
 
 import "../styles/Login.css";
 
-export function Login({ setAppPage }: PageProps) {
+export function Login({ setAppPage }: EntryPageProps) {
   const [formData, setFormData] = useState<AuthenticationData>({
     userName: "",
     password: "",

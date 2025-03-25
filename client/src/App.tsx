@@ -16,15 +16,30 @@ function App() {
     Authentication.recoverToken() ? "game" : "entryPage"
   );
 
+  // Connected Room ID
+  const [roomId, setRoomId] = useState<string | null>(null);
+
   let page = null;
 
   // Load corret page
   switch (appPage) {
     case "gameManager":
-      page = <GameManager setAppPage={setAppPage}></GameManager>;
+      page = (
+        <GameManager
+          setAppPage={setAppPage}
+          setRoomId={setRoomId}
+          roomId={roomId}
+        ></GameManager>
+      );
       break;
     case "game":
-      page = <Game setAppPage={setAppPage}></Game>;
+      page = (
+        <Game
+          setAppPage={setAppPage}
+          setRoomId={setRoomId}
+          roomId={roomId}
+        ></Game>
+      );
       break;
     default:
       page = <EntryPage setAppPage={setAppPage}></EntryPage>;

@@ -83,6 +83,7 @@ app.get("/gamerooms", (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   // Send rooms to client for first time
+  res.write(`event: roomsData\n`);
   res.write("data: " + JSON.stringify(gameManager.getAllRooms()) + "\n\n");
 
   res.write("\n"); // Mantén la conexión abierta
@@ -99,6 +100,7 @@ function sendRoomsToAllClients() {
   let gameRooms = gameManager.getAllRooms();
   for (const client of clients) {
     try {
+      client.write(`event: roomsData\n`);
       client.write(`data: ${JSON.stringify(gameRooms)}\n\n`);
     } catch (error) {
       console.error("Error al enviar a cliente SSE:", error);
@@ -111,19 +113,19 @@ function sendRoomsToAllClients() {
 app.post("/gamerooms", (req, res) => {
   const roomsRequest = req.body as RoomsRequest;
   if (roomsRequest.type === "roomCreate") {
-    const roomId = gameManager.createRoom(roomsRequest.userName);
+    const roomId = gameManager.createRoom(roomsRequest.userName, res);
     if (!roomId) {
       res.status(400).json({ errorMessage: "UserAlreadyCreated" });
       return;
     }
-    res.json({ createdRoom: roomId });
+    res.json({ joinedRoom: roomId });
   } else if (roomsRequest.type === "roomJoin") {
     const roomId = roomsRequest.roomId;
     if (!roomId) {
       res.status(400).json({ errorMessage: "No roomId provided" });
       return;
     }
-    const result = gameManager.joinRoom(roomId, roomsRequest.userName);
+    const result = gameManager.joinRoom(roomId, roomsRequest.userName, res);
     if (!result) {
       res
         .status(400)

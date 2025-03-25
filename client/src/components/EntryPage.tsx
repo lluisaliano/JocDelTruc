@@ -1,8 +1,8 @@
 import { Login } from "./Login";
 
-import { PageProps } from "../types/params";
+import { EntryPageProps } from "../types/params";
 
-export function EntryPage({ setAppPage }: PageProps) {
+export function EntryPage({ setAppPage }: EntryPageProps) {
   return (
     <>
       <Login setAppPage={setAppPage}></Login>

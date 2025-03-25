@@ -2,6 +2,12 @@ export type appPageType = "entryPage" | "game" | "gameManager";
 
 export interface PageProps {
   setAppPage: React.Dispatch<React.SetStateAction<appPageType>>;
+  setRoomId: React.Dispatch<React.SetStateAction<string | null>>;
+  roomId: string | null;
+}
+
+export interface EntryPageProps {
+  setAppPage: React.Dispatch<React.SetStateAction<appPageType>>;
 }
 
 export interface BoardProps {
